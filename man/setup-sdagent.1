@@ -1,0 +1,51 @@
+.TH setup-sdagent 1 "20 Feb 2013" "setup-sdagent" "Supportconfig Diagnostic Manual"
+.SH NAME
+setup-sdagent - Supportconfig Diagnostic Agent Creation Tool
+.SH SYNOPSIS
+setup-sdagent -h <agent> -p <root_password> [OPTIONS]
+.SH DESCRIPTION
+Creates the necessary agent database entries. These entries will be used by the agent once it is configured with \fBsdagent-config\fR. The \fBsetup-sdagent\fR configures the database entries and is run on the broker server, while the \fBsdagent-config\fR configures the agent itself and is run on the agent server. For detailed installation instructions, see \fI/usr/share/doc/packages/scdiag/README\fR.
+.SH OPTIONS
+.TP
+\fB\-H\fR
+Show this help screen.
+.TP
+\fB\-h\fR \fIstring\fR
+The agent server's hostname. This is used for the agent name in the database agent entry.
+.TP
+\fB\-p\fR \fIstring\fR
+The MySQL root password. Required to add an agent database entry and update the sdagent MySQL user.
+.TP
+\fB\-c\fR
+Do not clear the screen. Helpful for running in scripts.
+.TP
+\fB\-d\fR \fIstring\fR
+The agent working directory on the agent server.
+.RS
+Default: /var/opt/scdiag
+.RE
+.TP
+\fB\-w\fR \fIinteger\fR
+Number of worker threads for the configured agent. 
+.RS
+Default: 4
+.RE
+.PD
+.SH AUTHOR
+Jason Record <jrecord@suse.com>
+.SH COPYRIGHT
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 2 of the License.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.SH SEE ALSO
+.BR sdagent-config (1)
+

@@ -1,0 +1,37 @@
+.TH sdbroker 1 "20 Feb 2013" "sdbroker" "Supportconfig Diagnostic Manual"
+.SH NAME
+sdbroker - Supportconfig Diagnostic Broker
+.SH SYNOPSIS
+sdbroker [OPTIONS]
+.SH DESCRIPTION
+The broker monitors the supportconfig archive source for new archives. Any new archives found in the source location are added to the database. It evaluates archvies marked for retry and marks them for reprocessing. The broker also checks for stale assigned archives. If any stale archives are found, the archive is reprovisioned for processing by another agent, and the agent with the stale archives is deactivated. The broker must run on the server with the MySQL database.
+.SH OPTIONS
+.TP
+\fB\-h\fR
+Show this help screen.
+.TP
+\fB\-l\fR \fIInterger\fR
+Broker log level. Used to override the LOGLEVEL defined in \fBsdbroker.conf\fR. A value of 0 turns off logging, and 4 is debug.
+.RS
+Valid Range: 0-4
+.RE
+.PD
+.SH AUTHOR
+Jason Record <jrecord@suse.com>
+.SH COPYRIGHT
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 2 of the License.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.SH SEE ALSO
+.BR sdbroker.conf (5)
+.BR db (1)
+

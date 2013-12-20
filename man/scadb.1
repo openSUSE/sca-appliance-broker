@@ -1,0 +1,51 @@
+.TH db 1 "21 Feb 2013" "db" "Supportconfig Diagnostic Manual"
+.SH NAME
+db - Supportconfig Diagnostic Database Maintenance Tool
+.SH SYNOPSIS
+db [OPTIONS]
+.SH DESCRIPTION
+The \fBdb\fR command is used for database maintenance. It is run as the scdiag user, but can be run as root too.
+.SH OPTIONS
+.TP
+\fBhelp\fR
+Show this help screen.
+.TP
+\fBcheck\fR
+Checks, optimizes and repairs tables
+.TP
+\fBempty\fR
+Truncates Archives and Results, resets Agents and AgentWorkers
+.TP
+\fBcmd\fR \fIquery\fR
+Supports a custom query
+.TP
+\fBimport\fR \fIfile\fR
+Imports the file a MySQL file
+.TP
+\fBold\fR \fIinteger\fR
+Deletes old archives greater than \fIinteger\fR days old
+.TP
+\fBreset agents\fR
+Activates all agents and clears the agent threads
+.TP
+\fBreset archive\fR \fIinteger\fR
+Resets an archive to be analyzed again. The archive's results are deleted and the archive is set to a New state.
+.PD
+.SH AUTHOR
+Jason Record <jrecord@suse.com>
+.SH COPYRIGHT
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 2 of the License.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+.SH SEE ALSO
+.BR sdbroker (1)
+

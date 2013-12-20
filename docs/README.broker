@@ -1,0 +1,50 @@
+Installation Instructions:
+There is a two step process for installation. The broker server is installed first, followed by the agent server(s).
+The Supportconfig Diagnostic Pattern Database can optionally be installed.
+
+Broker Server
+	Minimum Installation Patterns:
+		Base System
+		32-Bit Runtime Environment
+		Minimal System
+		Web and LAMP Server
+	Login as root to the Broker Server
+	Add the SCA Appliance repository
+		yast add-on
+		Click Add, http, Next
+			Repository Name: SCA Appliance
+			URL of the Repository: http://download.opensuse.org/repositories/Novell:/NTS:/SCA/openSUSE_12.3/
+		Click Next
+		Search phrase: sca-
+		Packages to Install: sca-broker, sca-pattern-devel (findutils-locate is optional)
+		Click Accept and OK
+	Install phpMyAdmin (optional)
+		Download phpMyAdmin from http://www.phpmyadmin.net/home_page/index.php
+		Extract tar ball in /srv/www/htdocs/
+		Rename extracted directory to /srv/www/htdocs/phpMyAdmin
+		If you are running openSUSE, phpMyAdmin comes with the distro.
+	Run chkconfig apache2 on
+	Run chkconfig mysql on
+	Run rcapahce2 start
+	Run rcmysql start
+	Run /usr/bin/mysql_secure_installation (Press Enter for no initial password, and accept all the defaults. Create a mysql root user password 'suse').
+	Run setup-sdbroker
+	Run setup-sdagent on the Broker Server to setup each agent entry in the database.
+	Install the Broker Server's crontab
+	Logout of the Broker Server
+
+Example:
+
+The examples below assume all the software has been installed and the required services are enabled and turned on.
+
+* Installing an SCA Broker and Agent on the same server.
+
+Server Hostname: sca
+
+1. # setup-sdbroker -p <mysql-root-password> -b sdbroker_password -e <admin_email_address> -i <ftp://ftp.company.com/incoming>
+2. Follow the steps in README.agent to make sure all the required agent software is installed.
+	2.1 # setup-sdagent -h <agent_hostname> -p <mysql-root-password>
+	2.2 # sdagent-config -l <agent_hostname> -h <broker_hostname> -p sdagent_password -i <ftp://ftp.company.com/incoming> -e <admin_email_address>
+3. cp /usr/share/doc/packages/sca/combined.cron /etc/cron.d/
+
+

@@ -1,0 +1,363 @@
+#!/bin/bash
+SVER="1.0.0"
+ALL="arch agents workers"
+CONF='/etc/opt/sca/sdbroker.conf'
+
+title() {
+	echo "################################################################################"
+	echo "# Supportconfig Analysis Database Tool v${SVER}: $(date)"
+	echo "################################################################################"
+	echo
+}
+
+showHelp() {
+	echo 'Usage: scadb [OPTION]'
+	echo
+	echo "OPTIONS"
+	echo " help                 Shows this screen"
+	echo " check                Checks, optimizes and repairs tables"
+	echo " empty                Truncates Archives and Results, resets Agents and AgentWorkers"
+	echo " backup               Creates a mysqldump file of the ServerDiagnostics database"
+	echo " cmd <query>          Supports a custom query"
+	echo " import <file>        Imports the file"
+	echo " old <int>            Deletes old archives greater than <int> days old"
+	echo " del <int>            Deletes archive with <int> ArchiveID"
+	echo " reset agents         Activates the Agent and clears the agent threads"
+	echo " archive reset <int>  Configures an archive with archive ID <int> to be reanalyzed"
+	echo " archive ignore <int> Sets archive to error with archive ID <int>"
+	echo " archive done <int>   Sets archive to done with archive ID <int>"
+	echo " workers add <int> on <agent_id>"
+	echo "                      Increases the number of agent threads by <int> amount on <agent_id>"
+	echo " workers del <int> on <agent_id>"
+	echo "                      Decreases the number of agent threads by <int> amount on <agent_id>"
+	echo " maint                Changes to maintenance mode, use 'reset agents' to clear"
+	echo
+}
+
+displayDatabase() {
+	RCOUNT=$(mysql $DB_CONNECT -NB -e "SELECT count(*) from Results")
+	ACOUNT=$(mysql $DB_CONNECT -NB -e "SELECT count(*) from Archives")
+	echo "Table: Agents"
+	mysql $DB_CONNECT -e "SELECT Hostname,AgentState,AgentEvent,AgentMessage,ThreadsActive,CPUCurrent FROM Agents"
+	echo
+	echo "Table: AgentWorkers"
+	mysql $DB_CONNECT -e "SELECT * FROM AgentWorkers"
+	echo
+	echo "Table: Archives = $ACOUNT, Results = $RCOUNT"
+	PENDING=$(mysql $DB_CONNECT -NB -e "SELECT count(ArchiveState) FROM Archives WHERE ArchiveState='New' OR ArchiveState='Assigned' OR ArchiveState='Retry'")
+	ACTIVE=$(mysql $DB_CONNECT -NB -e "SELECT count(ArchiveState) FROM Archives WHERE ArchiveState='Downloading' OR ArchiveState='Extracting' OR ArchiveState='Analyzing' OR ArchiveState='Reporting'")
+	DONE=$(mysql $DB_CONNECT -NB -e "SELECT count(ArchiveState) FROM Archives WHERE ArchiveState='Done'")
+	ERROR=$(mysql $DB_CONNECT -NB -e "SELECT count(ArchiveState) FROM Archives WHERE ArchiveState='Error'")
+	echo "Archive Summary:"
+	echo "  Active $ACTIVE, Pending $PENDING, Done $DONE, Errors $ERROR"
+	echo
+}
+
+# usage: confirmed <string>
+confirmed() {
+	printf "$* [y/N]: "
+	read ANS
+	case $ANS in
+	y*|Y*) RCODE=0 ;;
+	*) RCODE=1 ;;
+	esac
+	return $RCODE
+}
+
+
+clear
+title
+if grep -i 'Run setup-sdbroker' $CONF &>/dev/null; then
+	echo "ERROR: Database not configured, run setup-sdbroker"
+	echo
+	showHelp
+	exit 2
+else
+	. $CONF
+fi
+case $1 in
+h*|-h*|--h*)
+	showHelp
+	;;
+empty)
+	if confirmed "Are you sure you want to empty the database?"; then
+		echo
+		echo "Tables Emptied: Archives, Results"
+		mysql $DB_CONNECT -e "TRUNCATE Archives"
+		mysql $DB_CONNECT -e "TRUNCATE Results"
+		mysql $DB_CONNECT -e "UPDATE Agents SET AgentEvent=NOW(), AgentState='Inactive', AgentMessage='Cleaned', ThreadsActive=0, CPUCurrent=0, ArchivesProcessed=0"
+		mysql $DB_CONNECT -e "UPDATE AgentWorkers SET ArchiveAssigned=NULL"
+		echo
+		displayDatabase
+	else
+		echo
+		echo "Aborted"
+	fi
+	;;
+backup)
+	echo "Backing up $DB_NAME database, root password required"
+	BACKUP_DATE=$(date +"%y%m%d")
+	BACKUP_TIME=$(date +"%H%M")
+	BACKUP_FILE="${SCDIAG_HOME}/${DB_NAME}_backup_${BACKUP_DATE}_${BACKUP_TIME}.sql"
+	mysqldump -u root -p ${DB_NAME} > $BACKUP_FILE
+	ERR=$?
+	if ! (( $ERR )); then
+		echo "Compressing $BACKUP_FILE"
+		gzip -9 $BACKUP_FILE
+		echo "Backup complete"
+	fi
+	;;
+reset)
+	case $2 in
+	agents)
+		echo "Activating Agent"
+		echo
+		mysql $DB_CONNECT -e "UPDATE Agents SET AgentEvent=NOW(), AgentState='Active', AgentMessage='Activated', ThreadsActive=0, CPUCurrent=0"
+		mysql $DB_CONNECT -e "UPDATE AgentWorkers SET ArchiveAssigned=NULL"
+		displayDatabase
+		;;
+	*)
+		echo "Error: Missing argument, agents required."
+		echo
+		showHelp
+	esac
+	;;
+archive)
+	case $2 in
+	reset)
+		ARCHIVE_ID=$3
+		if [ -n "$ARCHIVE_ID" ]; then
+			echo "Resetting archive $ARCHIVE_ID to be reanalyzed"
+			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Reanalysis Request', ArchiveState='New', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
+			if [ $? -eq 0 ]; then
+				echo "Removing any previous analysis results"
+				mysql $DB_CONNECT -e "DELETE FROM Results WHERE ResultsArchiveID=$ARCHIVE_ID"
+			fi
+		else
+			echo "Error: Missing Archive ID"
+			echo
+			showHelp
+		fi
+		;;
+	done)
+		ARCHIVE_ID=$3
+		if [ -n "$ARCHIVE_ID" ]; then
+			echo "Marking archive $ARCHIVE_ID to be complete"
+			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Marked Done', ArchiveState='Done', RetryCount=0 WHERE ArchiveID=$ARCHIVE_ID"
+		else
+			echo "Error: Missing Archive ID"
+			echo
+			showHelp
+		fi
+		;;
+	ignore)
+		ARCHIVE_ID=$3
+		if [ -n "$ARCHIVE_ID" ]; then
+			echo "Marking archive $ARCHIVE_ID to be ignored"
+			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Ignore Request', ArchiveState='Error', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
+			if [ $? -eq 0 ]; then
+				echo "Removing any assigned worker threads"
+				mysql $DB_CONNECT -e "UPDATE AgentWorkers SET ArchiveAssigned=NULL WHERE ArchiveAssigned=$ARCHIVE_ID"
+				echo "Removing any previous analysis results"
+				mysql $DB_CONNECT -e "DELETE FROM Results WHERE ResultsArchiveID=$ARCHIVE_ID"
+			fi
+		else
+			echo "Error: Missing Archive ID"
+			echo
+			showHelp
+		fi
+		;;
+	*)
+		echo "Error: Missing argument"
+		echo
+		showHelp
+	esac
+	;;
+archives)
+	FIELDS="ServerName, ArchiveState, ArchiveEvent, ArchiveMessage, PatternsApplicable, PatternsTested"
+	case $2 in
+	active)
+		echo "Active Archives"
+		mysql $DB_CONNECT -e "SELECT $FIELDS FROM Archives WHERE ArchiveState='Downloading' OR ArchiveState='Extracting' OR ArchiveState='Identifying' OR ArchiveState='Analyzing' OR ArchiveState='Reporting' ORDER BY ArchiveState ASC, ArchiveEvent DESC"
+		;;
+	esac
+	;;
+import)
+	FILE=$2
+	if [ -n "$FILE" ]; then
+		echo "Importing file: '$FILE'"
+		cat $FILE | mysql $DB_CONNECT
+	else
+		echo "ERROR: Invalid file: '$FILE'"
+	fi
+	;;
+maint)
+	echo "Changing to Maintenance Mode"
+	mysql $DB_CONNECT -e "LOCK TABLES Agents WRITE"
+	mysql $DB_CONNECT -e "UPDATE Agents SET AgentEvent=NOW(), AgentState='Inactive', AgentMessage='Maintenance'"
+	mysql $DB_CONNECT -e "UNLOCK TABLES"
+	;;
+old)
+	DAYS=$2
+	if [ -z "$DAYS" ]; then
+		echo "Error: Missing days value"; echo
+		showHelp
+		exit 3
+	else
+		if [[ "$DAYS" =~ ^[0-9]*$ ]]; then
+			ARCHIDS=$(mysql -NB $DB_CONNECT -e "SELECT ArchiveID FROM Archives WHERE DATE(ArchiveEvent) < SUBDATE(CURRENT_DATE(), INTERVAL $DAYS DAY)")
+			ARCHCNT=$(echo $ARCHIDS | wc -w)
+			if [ $ARCHCNT -gt 0 ]; then
+				if confirmed "Found $ARCHCNT archives older than $DAYS days, delete them?"; then
+					echo "Deleting Archive Results for $ARCHCNT Archives"
+					mysql $DB_CONNECT -e "LOCK TABLES Results WRITE" #Establish MUTEX
+					mysql $DB_CONNECT -e "DELETE FROM Results WHERE ResultsArchiveID IN (${ARCHIDS//[[:space:]]/,})"
+					mysql $DB_CONNECT -e "UNLOCK TABLES"
+					echo "Deleting $ARCHCNT Archives"
+					mysql $DB_CONNECT -e "LOCK TABLES Archives WRITE" #Establish MUTEX
+					mysql $DB_CONNECT -e "DELETE FROM Archives WHERE ArchiveID IN (${ARCHIDS//[[:space:]]/,})"
+					mysql $DB_CONNECT -e "UNLOCK TABLES"
+				else
+					echo "No archives where deleted"
+				fi
+			else
+				echo "No archives found older than $DAYS days"
+			fi
+		else
+			echo "Error: Only positive integer day values accepted"; echo
+			showHelp
+			exit 3
+		fi
+	fi
+	;;
+del)
+	ARCHID=$2
+	if [ -z "$ARCHID" ]; then
+		echo "Error: Missing Archive ID value"; echo
+		showHelp
+		exit 3
+	else
+		echo "Deleting Archive $ARCHID Results"
+		mysql $DB_CONNECT -e "LOCK TABLES Results WRITE" #Establish MUTEX
+		mysql $DB_CONNECT -e "DELETE FROM Results WHERE ResultsArchiveID = ${ARCHID}"
+		mysql $DB_CONNECT -e "UNLOCK TABLES"
+		echo "Deleting Archive $ARCHID"
+		mysql $DB_CONNECT -e "LOCK TABLES Archives WRITE" #Establish MUTEX
+		mysql $DB_CONNECT -e "DELETE FROM Archives WHERE ArchiveID = ${ARCHID}"
+		mysql $DB_CONNECT -e "UNLOCK TABLES"
+	fi
+	;;
+workers|threads)
+	echo "Thread Management"
+	shift
+	ACTION=$1
+	COUNT=$2
+	AGENT_ID=$4
+	if [[ -z "$COUNT" ]]; then
+		echo "Error: Missing thread count"; echo; showHelp; exit 4;
+	fi
+	if [[ -z "$AGENT_ID" ]]; then
+		echo "Error: Missing Agent ID"; echo; showHelp; exit 4;
+	fi
+	case $ACTION in
+	plus|add)
+		EXISTING_THREADS=$(mysql $DB_CONNECT -NB -e "SELECT ThreadsMax FROM Agents WHERE AgentID=$AGENT_ID")
+		MAX_THREADS=$(( EXISTING_THREADS + COUNT ))
+		echo "Adding $COUNT Thread(s) to Agent $AGENT_ID with $EXISTING_THREADS existing threads"
+		for (( I=EXISTING_THREADS; I<MAX_THREADS; I++ ))
+		do
+			WORKER_NUM=$((I+1))
+			WORKER_PATH="${SCDIAG_HOME}/worker${WORKER_NUM}"
+			mysql $DB_CONNECT -e "INSERT INTO AgentWorkers (WorkersAgentID, HomePath) VALUES ('$AGENT_ID', '$WORKER_PATH')"
+			ERR=$?
+			if (( ERR )); then
+				echo "Error: Adding worker thread $I to database"; echo; exit 4;
+			else
+				echo "Added worker $I to database"
+			fi
+		done
+		mysql $DB_CONNECT -e "LOCK TABLES Agents WRITE" #Establish MUTEX
+		mysql $DB_CONNECT -e "UPDATE Agents SET ThreadsMax=$MAX_THREADS, AgentEvent=NOW(), AgentMessage='Added $COUNT Worker Thread(s)' WHERE AgentID=$AGENT_ID"
+		ERR=$?
+		mysql $DB_CONNECT -e "UNLOCK TABLES" # Release MUTEX
+		if (( ERR )); then
+			echo "Error: Updating agent max threads"; echo; exit 4;
+		fi
+		;;
+	minus|remove|delete|del)
+		mysql $DB_CONNECT -e "LOCK TABLES AgentWorkers WRITE" #Establish MUTEX
+		HARD_MIN_THREADS=2
+		REMOVED=0
+		ACTIVE_THREADS=$(mysql $DB_CONNECT -NB -e "SELECT ThreadsActive FROM Agents WHERE AgentID=$AGENT_ID")
+		if [[ -n "$ACTIVE_THREADS" ]]; then
+			if (( ACTIVE_THREADS > 0 )); then
+				mysql $DB_CONNECT -e "UNLOCK TABLES" # Release MUTEX
+				echo "Warning: $ACTIVE_THREADS active thread(s) on Agent $AGENT_ID, try again later"
+			else
+				EXISTING_THREADS=$(mysql $DB_CONNECT -NB -e "SELECT ThreadsMax FROM Agents WHERE AgentID=$AGENT_ID")
+				echo "Removing $COUNT Thread(s) from Agent $AGENT_ID with $EXISTING_THREADS existing threads"
+				REMOVEABLE_THREADS=$(( EXISTING_THREADS - HARD_MIN_THREADS ))
+				if (( COUNT > REMOVEABLE_THREADS )); then
+					COUNT=$REMOVEABLE_THREADS
+					echo "Adjusting to maximum removeable threads: $COUNT"
+				fi
+				WORKER_IDS=$(mysql $DB_CONNECT -NB -e "SELECT WorkerID FROM AgentWorkers WHERE WorkersAgentID=$AGENT_ID AND ArchiveAssigned IS NULL ORDER BY WorkerID DESC")
+				for WORKER_ID in $WORKER_IDS
+				do
+					if (( REMOVED < COUNT )); then
+						mysql $DB_CONNECT -e "DELETE FROM AgentWorkers WHERE WorkerID=$WORKER_ID"
+						ERR=$?
+						if (( ERR )); then
+							echo "Error: Cannot remove worker $WORKER_ID"
+							break
+						else
+							echo "Removed worker $WORKER_ID from database"
+							((REMOVED++))
+						fi
+					else
+						echo "Total worker threads removed: $REMOVED"
+						break
+					fi
+				done
+				MAX_THREADS=$(( EXISTING_THREADS - REMOVED ))
+				mysql $DB_CONNECT -e "UNLOCK TABLES" # Release MUTEX
+				mysql $DB_CONNECT -e "LOCK TABLES Agents WRITE" #Establish MUTEX
+				mysql $DB_CONNECT -e "UPDATE Agents SET ThreadsMax=$MAX_THREADS, AgentEvent=NOW(), AgentMessage='Removed $REMOVED Worker Thread(s)' WHERE AgentID=$AGENT_ID"
+				mysql $DB_CONNECT -e "UNLOCK TABLES" # Release MUTEX
+				
+			fi
+		else
+			mysql $DB_CONNECT -e "UNLOCK TABLES" # Release MUTEX
+			echo "Error: Cannot determine active thread count on Agent $AGENT_ID"; echo; showHelp; exit 4;
+		fi
+		;;
+	*) echo "Error: Invalid threads action, use plus or minus"; echo; showHelp; exit 4 ;;
+	esac
+	echo; echo "Table: Agents"
+	mysql $DB_CONNECT -e "SELECT Hostname,AgentState,AgentEvent,AgentMessage,ThreadsActive,ThreadsMax FROM Agents"
+	echo; echo "Table: AgentWorkers"
+	mysql $DB_CONNECT -e "SELECT * FROM AgentWorkers"
+	echo
+	;;
+check)
+	echo "Checking Tables"
+	mysqlcheck $DB_CONNECT
+	echo
+	echo "Automatically Repairing Tables"
+	mysqlcheck --auto-repair $DB_CONNECT
+	echo
+	echo "Optimizing Tables"
+	mysqlcheck -o $DB_CONNECT
+	echo
+	;;
+cmd)
+	echo "Custom mySQL Query"
+	shift
+	mysql $DB_CONNECT -e "$*"	
+	;;
+*)
+	displayDatabase
+	;;
+esac
+echo
+

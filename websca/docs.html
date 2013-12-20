@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<TITLE>SCA Documentation</TITLE>
+<!-- Modified: Date       = 2013 Nov 21 -->
+</HEAD>
+<BODY>
+<H1 ALIGN="CENTER">SCA Documentation</H1>
+<UL>
+<LI><A HREF="#pass">Changing the Default Passwords</A></LI>
+<LI><A HREF="#admin">SCA Appliance Administration</A></LI>
+<LI><A HREF="#arch">Archive Mode</A></LI>
+<LI><A HREF="#erpt">Emailing SCA Reports</A></LI>
+<LI><A HREF="#update">SCA Appliance Updates</A></LI>
+<LI><A HREF="#cron">Automating Supportconfig Uploads to the SCA Appliance</A></LI>
+<LI><A HREF="#health">Basic Server Health Checks</A></LI>
+<LI><A HREF="#getsc">Getting the Latest Supportconfig</A></LI>
+<LI><A HREF="#schang">Troubleshooting Supportconfig Hangs</A></LI>
+</UL>
+<HR>
+<H3><A NAME="pass">Changing the Default Passwords</A></H3>
+<P>The default password for root, mariadb root and the SCA web page is linux. Each should be changed once the appliance has been installed.</P>
+
+<OL><U>Changing the SCA web page username and/or password</U>
+<LI>Login as root at the system console</LI>
+<LI>Edit <B>/srv/www/htdocs/sca/login.php</B></LI>
+<LI>Change the $username and $password values as you want</LI>
+<LI>Save and exit</LI>
+</OL>
+
+<OL><U>Changing the system root password</U>
+<LI>Login to the system console as root using the defaul password of <B>linux</B></LI>
+<LI>Type <B>passwd</B></LI>
+<LI>When prompted type in your new system root user password</LI>
+</OL>
+
+<OL><U>Changing the MariaDB (MySQL) database root password</U>
+<LI>Login as root at the system console</LI>
+<LI>Run <B>/usr/bin/mysql_secure_installation</B></LI>
+	<UL>
+	<LI>Enter current password for root (enter for none): <B>linux</B></LI>
+	<LI>Change the root password? [Y/n] <B>Y</B></LI>
+	<LI>Type in your desired password at the "New password:" prompt</LI>
+	<LI>Assume the defaults for all other questions</LI>
+	</UL>
+</OL>
+
+<HR>
+<H3><A NAME="admin">SCA Appliance Administration</A></H3>
+<P>You can do some database maintenance and administration using the <B>scadb</B> command. Login as root and run the command.</P>
+
+<PRE>
+################################################################################
+# Supportconfig Analysis Database Tool
+################################################################################
+
+Usage: scadb [OPTION]
+
+OPTIONS
+ help                 Shows this screen
+ check                Checks, optimizes and repairs tables
+ empty                Truncates Archives and Results, resets Agents and AgentWorkers
+ backup               Creates a mysqldump file of the ServerDiagnostics database
+ cmd &lt;query&gt;          Supports a custom query
+ import &lt;file&gt;        Imports the file
+ old &lt;int&gt;            Deletes old archives greater than &lt;int&gt; days old
+ del &lt;int&gt;            Deletes archive with &lt;int&gt; ArchiveID
+ reset agents         Activates the Agent and clears the agent threads
+ archive reset &lt;int&gt;  Configures an archive with archive ID &lt;int&gt; to be reanalyzed
+ archive ignore &lt;int&gt; Sets archive to error with archive ID &lt;int&gt;
+ workers add &lt;int&gt; on &lt;agent_id&gt;  Increases the number of agent threads by &lt;int&gt; amount on &lt;agent_id&gt;
+ workers del &lt;int&gt; on &lt;agent_id&gt;  Decreases the number of agent threads by &lt;int&gt; amount on &lt;agent_id&gt;
+ maint                Changes to maintenance mode, use 'reset agents' to clear
+
+</PRE>
+
+<HR>
+<H3><A NAME="arch">Archive Mode</A></H3>
+<P>The default behavior is to delete all supportconfig archives in the /srv/ftp/upload directory once they have been successfully processed. However, you can change this behavior so the supportconfig archives are left in the /srv/ftp/upload directory for archive purposes. This is helpful when you want to save supportconfigs off the server. Comparing a supportconfig from a problem server with the supportconfig from its previously working condition is a valueable troubleshooting technique.</P>
+
+<P>Do the following to enable archive mode:</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Edit <B>/etc/opt/sca/sdagent.conf</B></LI>
+<LI>Change <B>ARCHIVE_MODE=0</B> to <B>ARCHIVE_MODE=1</B></LI>
+<LI>Save and exit</LI>
+<LI>All future supportconfigs will remain in the appliance's <B>/srv/ftp/upload</B> directory</LI>
+<LI><B>NOTE:</B> You are responsible for file rotation. Don't let the SCA Appliance run out of disk space.</LI>
+</OL>
+
+<HR>
+<H3><A NAME="erpt">Emailing SCA Reports</A></H3>
+<P>The SCA Appliance can email a report HTML file for each supportconfig analyzed.</P>
+
+<P>Do the following to configure emailing SCA Reports.</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Edit <B>/etc/opt/sca/sdagent.conf</B></LI>
+<LI>Change root in <B>EMAIL_REPORT='root'</B> to a list of email addresses, separated by spaces, to which you want SCA Reports sent.</LI>
+For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
+<LI>Change the <B>STATUS_NOTIFY_LEVEL</B> from <B>$STATUS_OFF</B> to the level of reports you want sent.</LI>
+	<UL>
+	<LI><B>$STATUS_OFF</B> - No SCA Reports will be emailed out.</LI>
+	<LI><B>$STATUS_SUCCESS</B> - SCA Reports that include a SUCCESS, RECOMMEND, WARNING or CRITICAL will be sent out.</LI>
+	<LI><B>$STATUS_RECOMMEND</B> - SCA Reports that include a RECOMMEND, WARNING or CRITICAL will be sent out.</LI>
+	<LI><B>$STATUS_WARNING</B> - SCA Reports that include a WARNING or CRITICAL will be sent out.</LI>
+	<LI><B>$STATUS_CRITICAL</B> - SCA Reports that include a CRITICAL will be sent out.</LI>
+	For example: <B>STATUS_NOTIFY_LEVEL=$STATUS_SUCCESS</B><BR>
+	</UL>
+<LI>Save and exit</LI>
+<LI>All future SCA Reports will be emailed to the specified addresses</LI>
+<LI>No reboot or restart required</LI>
+</OL>
+
+<HR>
+<H3><A NAME="update">SCA Appliance Updates</A></H3>
+<P>The SCA Appliance and its assoicated patterns are built in the OpenSUSE Build Service project <A HREF="https://build.opensuse.org/project/show/Novell:NTS:SCA" TARGET="scaobs">Supportconfig Analaysis Appliance</A>. The appliance is linked to this service making it possible to update your SCA Appliance when new patterns or updates are available. You do not need to reimage your server or VM.</P>
+
+<P>Do the following to update the SCA Appliance</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Run <B>zypper ref</B> to refresh the update repositories</LI>
+	<UL>
+	<LI>The first time you refresh, you will be prompted to reject or trust the Novell:NTS OBS Project key</LI>
+	<LI>Select <B>a</B> to always trust the key</LI>
+	</UL>
+<LI>Run <B>zypper --non-interactive update sca-*</B> to update the appliance and its patterns</LI>
+<LI>Once the patches have been installed, run <B>sdagent-patterns</B> to update the database</LI>
+	<UL>
+	<LI>This step is optional, as it will happen automatically at the end of the day</LI>
+	</UL>
+</OL>
+
+<HR>
+<H3><A NAME="cron">Automating Supportconfig Uploads to the SCA Appliance</A></H3>
+<P>The purpose of the SCA Appliance is to automatically analyze supportconfig archives. You can setup your SLES servers to automatically upload a supportconfig to the SCA Appliance on a regular basis to monitor any change in the server's health. The SCA Appliance is already configured as an anonymous FTP server. The only thing left is to setup a crontab entry on each SLES server so they will upload their supportconfig.</P>
+
+<P>For this example, I will assume your SCA Appliance hostname is <b>sca.company.com</b>, and server you want analyzed is <b>server.company.com</b></P>
+
+<OL>
+<LI>Login to <B>server.company.com</B> as root</LI>
+<LI>Make sure your supportutils package that provides supportconfig is up-to-date (see <A HREF="#getsc">Getting the Latest Supportconfig</A>)
+	<UL>
+	<LI>There is a bug in earlier supportconfig versions that will fail to upload with the -U option.</LI>
+	<LI>If you cannot update supportconfig, refer to the "Host Configuration" section in the <A HREF="https://www.suse.com/communities/conversations/creating-a-central-supportconfig-repository/" TARGET="_blank">Creating a Central Supportconfig Repository</A> article.</LI>
+	</UL>
+<LI>Run <B>crontab -e</B> to create a supportconfig crontab entry</LI>
+<LI>Create the following entry</LI>
+# Run supportconfig in quiet mode on the first day of the month at 2:05am<BR>
+5 2 1 * * /sbin/supportconfig -QU "ftp://sca.company.com/upload"<BR>
+<LI>Save and quit</LI>
+</OL>
+
+<HR>
+<H3><A NAME="health">Basic Server Health Checks</A></H3>
+<P>When a server is not behaving correctly, it is important to check some basic server conditions such as free disk space, CPU utilization, memory usage and running process status. The SCA Appliance checks these basic conditions for you in the "Basic Health" category in the reports. However, you can manually review the conditions in the supportconfig archive.</P>
+<P>Refer to <A HREF="https://www.suse.com/communities/conversations/basic-server-health-check-supportconfig/" TARGET="_blank">A Basic Server Health Check with Supportconfig</A> for more details.</P>
+
+<HR>
+<H3><A NAME="getsc">Getting the Latest Supportconfig</A></H3>
+<P>The SCA Appliance relies on the data gathered by supportconfig. It is always a good idea to use the latest supportconfig provided in the supportutils package on servers you are analyzing. SLES10 SP3 and newer ship with the supportutils package, other versions of SLES do not.</P>
+
+<P>To update from the published update channels, run <B>zypper up supportutils</B>.</P>
+
+<P>To update from the openSUSE Build Service (OBS), refer to "<A HREF="http://www.novell.com/communities/node/2332/supportconfig-linux" TARGET="_blank">Supportconfig for Linux</A>", Option A. This is the absolute current version.</P>
+
+<HR>
+<H3><A NAME="schang">Troubleshooting Supportconfig Hangs</A></H3>
+<P>Sometimes supportconfig will hang. You can find out which command is causing the hang or even attempt to by-pass the hang using the Ctrl-\ key.</P>
+
+<P>Refer to <A HREF="https://www.suse.com/communities/conversations/troubleshooting-supportconfig-hang/" TARGET="_blank">Troubleshooting a supportconfig Hang<A> for more details.</P>
+<BR>
+</BODY>
+</HTML>
+

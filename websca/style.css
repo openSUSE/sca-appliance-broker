@@ -1,0 +1,408 @@
+A.subnav{
+	color: #000000;
+	text-decoration : none;	
+}
+A:HOVER.subnav {
+	color : #008A59;	
+}
+A:HOVER:head_2 {
+        color : #000000 ;
+        text-decoration : underline;
+}
+A.home {
+	color : #000000;
+	text-decoration : none;
+}
+A {
+	color : #555555;
+	text-decoration : none;
+}
+A:HOVER {
+	color : #000000;
+	text-decoration : underline;	
+}
+.text{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-variant : normal;
+	color : #000000;
+	line-height : 14px;
+}
+.formtext{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-variant : normal;
+	color : #000000;
+}
+.footer{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10px;
+	color : #B8B2AA;
+}
+.footer a {
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10px;
+	color : #B8B2AA;
+	text-decoration : none;
+}
+.footer a:hover {
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10px;
+.text{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-variant : normal;
+	color : #000000;
+	line-height : 16px;
+}
+	color : #008A59;	
+}
+LI{
+
+	color : #000000;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	margin-top: 0.3em; 
+	margin-left: 1em;
+}
+LI.number{
+	list-style : decimal;
+}
+.subnavoff{
+	
+	
+}
+.title{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 14px;
+	font-weight : bold;
+	color : #008A59;
+	line-height: 20px;
+}
+.title2{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-weight : bold;
+	color : #000000;
+	line-height: 14px;
+}
+.title3{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	color : #000000;
+	line-height: 14px;
+}
+LI.home{
+	list-style-image : url('../images/products/bullet.gif');
+}
+table.specfeat{
+	border : 1px solid #0058C2;
+}
+A.footer{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 10px;
+	color : #B8B2AA;
+	text-decoration : none;
+}
+table.outlined	{
+	border : 2px solid #0058C2;
+	width : 117;
+	vertical-align: top;	
+}
+.head_1 {
+	color: red;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	FONT-WEIGHT: bold;
+	FONT-SIZE: 38px;
+	padding: 0px 0px 2px 6px;
+}
+.head_2 {
+	background-color: #587AB5;
+	color : #FFFFFF;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	FONT-WEIGHT: bold;
+	FONT-SIZE: 14px;
+	padding: 0px 0px 2px 6px;
+}
+tr.head_2 {
+	background-color: #587AB5;
+	color : #FFFFFF;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 1.0em;
+}
+tr.head_2 A {
+	color : #FFFFFF;
+	text-decoration : underline;	
+}
+tr.head_2 A:HOVER {
+	text-decoration : none;	
+}
+tr.head {
+	color: #666666;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif; 
+	font-weight: 600;
+	font-size: 1.0em;
+}
+tr.header
+{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	background-color: #DDDDFF;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+tr.subhead
+{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	background-color: #DDDDDD;
+	font-size: 12px;
+	font-weight: bold;
+}
+tr.data
+{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	background-color: #EEDDCC;
+	font-size: 12px;
+}
+tr.datalightblue
+{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	background-color: #DDEEFF;
+	font-size: 12px;
+}
+
+td.outlined	{
+	list-style-type : square;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-variant : normal;
+	color : #000000;
+	line-height : 16px;	
+	vertical-align: top;	
+}
+.outlined	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 13px;
+	font-variant : heavy;
+	color : #0058C2;
+}
+.doclist	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-weight : normal;
+	color : #000000;
+	line-height : 14px;
+	background-color : #D1D1D1;
+}
+	
+.doclisth	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	font-weight : bold;	
+	color : #000000;
+	line-height : 14px;
+	}	
+
+.doclistheader	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-weight : bold;
+	color : #FFFFFF;
+	line-height : 14px;
+	background-color : #0058C2;
+}	
+	
+.doclistfilename	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	font-style : italic;	
+	color : #000000;
+	line-height : 14px;
+	}
+.contacthdr {
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	color : #000000;
+	line-height : 14px;
+	font-weight : bold;
+}	
+.contactdescr	{
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size : 11px;
+	color : #000000;
+	line-height : 14px;
+}
+table.access{
+	border : 1px solid #0593E2;
+}
+.bodyTextBlue {
+	font-family: Tahoma, Helvetica, Verdana, Geneva, Arial, sans-serif;
+	font-size : 13px;
+	color: #003399;
+}
+table.doclist {
+	border : 2px solid #0058C2;
+}
+
+H1   
+{ 
+	color: red; 
+	font-weight: bold; 
+	font-size: 24px; 
+	margin-top: 0.2em 
+}
+
+.head4   
+{ 
+	color: black; 
+	font-weight: bold; 
+	FONT-SIZE: 12px;
+	margin-top: 0.2em 
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+.task1  
+{ 
+	margin-top: 0.3em; 
+	margin-left: 1em; 
+	font-size: 0.8em 
+}
+.task2  
+{
+	margin-top: 0.3em; 
+	margin-left: 2em; 
+	font-size: 0.8em 
+}
+.tdBlackWhite {
+	background-color: #FFFFFF;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdGrey {
+	background-color: #E5E5E5;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdGreyLight {
+	background-color: #F5F5F5;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdCritical {
+	background-color: #ED1C24;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdCritical A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdCritical A:HOVER {
+	text-decoration : underline;
+}
+.tdCriticalLight {
+	background-color: #ED5C62;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdCriticalLight A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdCriticalLight A:HOVER {
+	text-decoration : underline;
+}
+.tdWarning {
+	background-color: #F7AC07;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdWarning A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdWarning A:HOVER {
+	text-decoration : underline;
+}
+.tdWarningLight {
+	background-color: #F7C352;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdWarningLight A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdWarningLight A:HOVER {
+	text-decoration : underline;
+}
+.tdRecommended {
+	background-color: #007FB2;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdRecommended A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdRecommended A:HOVER {
+	text-decoration : underline;
+}
+.tdRecommendedLight {
+	background-color: #2DA5D7;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdRecommendedLight A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdRecommendedLight A:HOVER {
+	text-decoration : underline;
+}
+.tdSuccess {
+	background-color: #24ED14;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdSuccess A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdSuccess A:HOVER {
+	text-decoration : underline;
+}
+.tdSuccessLight {
+	background-color: #8FC168;
+	font-family : Tahoma, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	font-size : 14px;
+	color : #000000;
+}
+.tdSuccessLight A {
+	color : #000000;
+	text-decoration : none;
+}
+.tdSuccessLight A:HOVER {
+	text-decoration : underline;
+}
+

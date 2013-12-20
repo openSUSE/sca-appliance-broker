@@ -1,0 +1,225 @@
+#!/bin/bash
+
+SVER=1.0.0
+
+##############################################################################
+#  setup-sdbroker - Supportconfig Analysis Broker Setup Tool
+#  Copyright (C) 2013 SUSE LLC
+#
+# Description:  Creates the main mySQL database for the Supportconfig Diagnostic
+#               Tool infrastructure
+# Runs on:      Broker Server
+# Modified:     2013 Oct 02
+#
+##############################################################################
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 2 of the License.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#  Authors/Contributors:
+#     Jason Record (jrecord@suse.com)
+#
+##############################################################################
+
+DB_USER='root'
+DB_NAME='ServerDiagnostics'
+DB_ALL_USERS="sdbroker, sdagent"
+CURRENT_SCRIPT=$(basename $0)
+SCDIAG_HOME='/opt/sca'
+BROKER_CONFIG='/etc/opt/sca/sdbroker.conf'
+DEF_SCHEMA='/usr/share/doc/packages/sca'
+DEF_CRON='/usr/share/doc/packages/sca/sdbroker.cron'
+CMB_CRON='/usr/share/doc/packages/sca/combined.cron'
+CONFIRMED=0
+EFMT="%-30s %s"
+FMT="${EFMT}\n"
+
+##############################################################################
+# Functions: Local
+##############################################################################
+
+title() {
+	echo "####################################################################"
+	echo "# SCA Broker Setup Tool v$SVER"
+	echo "####################################################################"
+	echo
+}
+
+showHelp() {
+	clear
+	title
+	[ -n "$1" ] && { echo "$1"; echo; }
+	echo "Usage: $CURRENT_SCRIPT -p <root_password> -b <sdbroker_password> -e <email> -i <url> [OPTIONS]"
+	echo 'Description:'
+	echo '  Configures the MySQL administration and report database used by'
+	echo '  the Supportconfig Analysis Tools.'
+	echo
+	echo 'Options:'
+	echo '  -h Show this screen and exit'
+	echo '  -c Do not clear the screen'
+	echo '  -p <str> MySQL root password'
+	echo '  -b <str> MySQL sdbroker password'
+	echo "  -e <email> Admin email address"
+	echo '  -i <str> Input source URL'
+	echo '     Example: ftp://ftp.server.org/incoming'
+	echo '              file:///srv/ftp/'
+	echo '  -s <str> Path to schema files'
+	echo "     Default: $DEF_SCHEMA"
+	echo '  -y Confirms the deletion of a pre-existing database and users'
+	echo
+}
+
+main() {
+	[ -s ${SCHEMA_PATH}/ServerDiagnostics_DB.sql ] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_DB.sql"; exit 5; }
+	[ -s ${SCHEMA_PATH}/ServerDiagnostics_Users.sql ] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_Users.sql"; exit 5; }
+	DB_ROOT="-u $DB_USER -p${DB_PASS}"
+	mysql $DB_ROOT -e "use $DB_NAME" &>/dev/null
+	RC=$?
+	if [ $RC -eq 0 ]; then
+		if (( CONFIRMED )); then
+			DELETE_DB=1
+		else
+			printf "Do you want to delete the database? [y/N]: "
+			read GO
+			case $GO in
+			y*|Y*) DELETE_DB=1 ;;
+			*) DELETE_DB=0 ;;
+			esac
+		fi
+		if (( DELETE_DB )); then
+			printf "$FMT" "Deleting Database:" $DB_NAME
+			mysql $DB_ROOT -e "DROP DATABASE $DB_NAME"
+		else
+			exit 1
+		fi
+	fi
+
+	USER_FOUND=$(mysql -NB $DB_ROOT -e "SELECT User FROM user WHERE User='sdbroker'" mysql 2>/dev/null)
+	if [ -n "$USER_FOUND" ]; then
+		if (( CONFIRMED )); then
+			DELETE_USERS=1
+		else
+			printf "Do you want to delete the users? [y/N]: "
+			read GO
+			case $GO in
+			y*|Y*) DELETE_USERS=1 ;;
+			*) DELETE_USERS=0 ;;
+			esac
+		fi
+		if (( DELETE_USERS )); then
+			printf "$FMT" "Deleting Users:" "$DB_ALL_USERS"
+			mysql $DB_ROOT -e "DROP USER 'reports'@'%', 'sdbroker'@'localhost', 'sdagent'@'%'"
+		else
+			exit 1
+		fi
+	fi
+
+	printf "$FMT" "Creating Database:" $DB_NAME
+	mysql $DB_ROOT -e "CREATE DATABASE $DB_NAME"
+	RC=$?
+	[ $RC -gt 0 ] && { echo; exit $RC; }
+	cat ${SCHEMA_PATH}/ServerDiagnostics_DB.sql | mysql $DB_ROOT $DB_NAME
+	RC=$?
+	if [ $RC -eq 0 ]; then
+		printf "$FMT" "Creating Users:" "$DB_ALL_USERS"
+		cat ${SCHEMA_PATH}/ServerDiagnostics_Users.sql | mysql $DB_ROOT
+	fi
+	printf "$FMT" "Input Source URL:" $OPT_INSRC
+	OPT_INSRC_TYPE=$(echo $OPT_INSRC | cut -d\: -f1)
+	OPT_INSRC_HOST=$(echo $OPT_INSRC | cut -d\/ -f3)
+	OPT_INSRC_DIR=$(echo $OPT_INSRC | sed -e "s!${OPT_INSRC_TYPE}://${OPT_INSRC_HOST}!!g")
+	printf "$EFMT" "  Test Results:"
+	case $OPT_INSRC_TYPE in
+	ftp)
+		curl -m 60 -l ${OPT_INSRC}/ &> /dev/null
+		RCODE=$?
+		;;
+	file)
+		if [ ! -d $OPT_INSRC_DIR ]; then
+			RCODE=10
+		fi
+		;;
+	*) RCODE=2 ;;
+	esac
+	if (( RCODE )); then
+		echo "Failed, RC=$RCODE"
+		exit 8
+	else
+		echo "Success"
+	fi
+
+	echo
+	if [ -e $BROKER_CONFIG ]; then
+		OPT_EMAIL_ADMIN=$(echo $OPT_EMAIL_ADMIN | sed -e "s!,! !g;s!  ! !g")
+		sed -i -e "s!^DB_PASS=.*!DB_PASS='$OPT_PASS'!" $BROKER_CONFIG
+		sed -i -e "s!^INSRC=.*!INSRC='${OPT_INSRC}'!" $BROKER_CONFIG
+		sed -i -e "s!^EMAIL_ADMIN=.*!EMAIL_ADMIN='${OPT_EMAIL_ADMIN}'!" $BROKER_CONFIG
+		sed -i -e "s!^INSRC_TYPE=.*!INSRC_TYPE='${OPT_INSRC_TYPE}'!" $BROKER_CONFIG
+		sed -i -e "s!^INSRC_HOST=.*!INSRC_HOST='${OPT_INSRC_HOST}'!" $BROKER_CONFIG
+		sed -i -e "s!^INSRC_DIR=.*!INSRC_DIR='${OPT_INSRC_DIR}'!" $BROKER_CONFIG
+	else
+		echo "ERROR: File not found: $BROKER_CONFIG"
+		echo
+		exit 3
+	fi
+	DB_CONNECT="-u sdbroker -p${OPT_PASS} $DB_NAME"
+	mysql $DB_CONNECT -e "SHOW TABLES"
+	if [ $? -gt 0 ]; then
+		echo
+		exit 3
+	else
+#		echo
+#		echo "Add cron entries"
+#		echo "  Run 'crontab $DEF_CRON' if this server only has sdbroker"
+#		echo "  Run 'crontab $CMB_CRON' if this server has sdbroker and sdagent"
+#		echo "  Run 'crontab -e sca -e' to manually edit the cron"
+#		echo
+#		[ -e $DEF_CRON ] && cat $DEF_CRON
+		echo
+		echo "Run setup-sdagent on this server."
+	fi
+	echo
+}
+
+DB_PASS=''
+OPT_PASS=''
+OPT_SCHEMA=''
+OPT_INSRC=''
+OPT_EMAIL_ADMIN=''
+CLEAR=1
+while getopts ':chb:e:i:p:s:y' TMPOPT
+do
+	case $TMPOPT in
+		\:) showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
+		\?) showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
+		c) CLEAR=0 ;;
+		h) clear; title; showHelp; exit 0 ;;
+		p) DB_PASS=$OPTARG ;;
+		b) OPT_PASS=$OPTARG ;;
+		e) OPT_EMAIL_ADMIN=$OPTARG ;;
+		s) OPT_SCHEMA=$OPTARG ;;
+		i) OPT_INSRC=$OPTARG ;;
+		y) CONFIRMED=1 ;;
+	esac
+done
+[ -z "$OPT_PASS" ] && { showHelp "ERROR: Missing MySQL sdbroker Password"; exit 1; }
+[ -z "$DB_PASS" ] && { showHelp "ERROR: Missing MySQL Root Password"; exit 1; }
+[ -z "$OPT_INSRC" ] && { showHelp "ERROR: Missing Input Source URL"; exit 1; }
+[ -z "$OPT_EMAIL_ADMIN" ] && { showHelp "ERROR: Missing Admin email address"; exit 1; }
+[ -z "$OPT_SCHEMA" ] && SCHEMA_PATH=$DEF_SCHEMA || SCHEMA_PATH=$OPT_SCHEMA
+
+[ $CLEAR -gt 0 ] && clear
+title
+main
+
+

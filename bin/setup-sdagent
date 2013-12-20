@@ -1,0 +1,131 @@
+#!/bin/bash
+
+SVER=1.0.0
+
+##############################################################################
+#  sdagent-config - Supportconfig Analysis Agent Setup Tool
+#  Copyright (C) 2013 SUSE LLC
+#
+# Description:  Configures the agent server so it knows how to communicate
+#               with the Broker server and the mySQL database on the Broker
+#               server.
+# Runs on:      Agent Server
+# Modified:     2013 Sep 23
+#
+##############################################################################
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 2 of the License.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#  Authors/Contributors:
+#     Jason Record (jrecord@suse.com)
+#
+##############################################################################
+
+DB_USER='root'
+DB_NAME_ADMIN='ServerDiagnostics'
+DEF_HOME="/var/opt/sca"
+DEF_WORKERS=4
+CURRENT_SCRIPT=$(basename $0)
+
+##############################################################################
+# Functions: Local
+##############################################################################
+
+title() {
+	echo "####################################################################"
+	echo "# SCA Agent Setup Tool v$SVER"
+	echo "####################################################################"
+	echo
+}
+
+showHelp() {
+	[ -n "$1" ] && { echo "$1"; echo; }
+	echo "Usage: $CURRENT_SCRIPT -h <agent> -p <root_password> [OPTIONS]"
+	echo 'Description:'
+	echo '  Configures a new agent that will run sdagent.'
+	echo
+	echo 'Options:'
+	echo '  -H Show this screen and exit'
+	echo '  -c Do not clear the screen'
+	echo '  -d <str> SCDiag worker home directory'
+	echo "     Default: $DEF_HOME"
+	echo '  -h <str> Agent hostname'
+	echo '  -p <str> MySQL root password'
+	echo '  -w <int> Number of worker threads for the configured agent'
+	echo "     Default: $DEF_WORKERS"
+	echo
+}
+
+main() {
+	DB_ADMIN="-u $DB_USER -p${DB_PASS} $DB_NAME_ADMIN"
+	
+	[ -n "$OPT_HOME" ] && SCDIAG_HOME=$OPT_HOME || SCDIAG_HOME=$DEF_HOME
+	[ -n "$OPT_WORKERS" ] && WORKERS=$OPT_WORKERS || WORKERS=$DEF_WORKERS
+	AGENT_MSG="Run sdagent-config on $OPT_FQDN"
+
+	mysql $DB_ADMIN -e "INSERT INTO Agents (AgentState, AgentEvent, AgentMessage, Hostname, ThreadsMax) VALUES ('Configure', NOW(), '$AGENT_MSG', '$AGENT_FQDN', '$WORKERS')"
+	RC=$?
+	if [ $RC -gt 0 ]; then
+		echo
+		echo "Run setup-sdbroker to configure the database"
+		echo
+		exit 5
+	else
+		AGENT_ID=$(mysql -NB $DB_ADMIN -e "SELECT AgentID FROM Agents WHERE Hostname='$AGENT_FQDN'")
+		for I in $(seq 1 $WORKERS)
+		do
+			mysql $DB_ADMIN -e "INSERT INTO AgentWorkers (WorkersAgentID, HomePath) VALUES ('$AGENT_ID', '${SCDIAG_HOME}/worker$I')"
+			RC=$?
+			if [ $RC -gt 0 ]; then
+				echo
+				echo "Run setup-sdbroker to configure the database"
+				echo
+				exit 6
+			fi
+		done
+		echo
+		echo "Agent Setup Complete"
+		mysql $DB_ADMIN -e "SELECT * FROM Agents WHERE AgentID='$AGENT_ID'"
+		mysql $DB_ADMIN -e "SELECT * FROM AgentWorkers WHERE WorkersAgentID='$AGENT_ID'"
+		echo
+		echo "$AGENT_MSG"
+		echo
+	fi
+}
+
+OPT_FQDN=''
+OPT_HOME=''
+OPT_WORKERS=''
+OPT_PASS=''
+CLEAR=1
+while getopts ':Hh:cd:p:w:' TMPOPT
+do
+	case $TMPOPT in
+		\:) clear; title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
+		\?) clear; title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
+		H) showHelp; exit 0 ;;
+		c) CLEAR=0 ;;
+		h) OPT_FQDN=$OPTARG ;;
+		d) OPT_HOME=$OPTARG ;;
+		p) OPT_PASS=$OPTARG ;;
+		w) OPT_WORKERS=$OPTARG ;;
+	esac
+done
+[ -z "$OPT_FQDN" ] && { clear; title; showHelp "ERROR: Missing Agent hostname"; exit 1; } || AGENT_FQDN=$OPT_FQDN
+[ -z "$OPT_PASS" ] && { clear; title; showHelp "ERROR: Missing MySQL root Password"; exit 1; } || DB_PASS=$OPT_PASS
+
+[ $CLEAR -gt 0 ] && clear
+title
+main
+

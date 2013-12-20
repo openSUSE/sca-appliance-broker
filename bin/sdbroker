@@ -1,0 +1,260 @@
+#!/bin/bash
+
+SVER=1.0.0
+
+##############################################################################
+#  sdbroker - Supportconfig Analysis Broker
+#  Copyright (c) 2013 SUSE LLC
+#
+# Description:  Maintains the list of new archives.
+# Runs on:      Broker Server
+# Modified:     2013 Sep 23
+
+##############################################################################
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 2 of the License.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#  Authors/Contributors:
+#     Jason Record (jrecord@suse.com)
+#
+##############################################################################
+
+CURRENT_SCRIPT=$(basename $0)
+. /etc/opt/sca/sdbroker.conf
+
+##############################################################################
+# Global Variables
+##############################################################################
+
+ALL_ARCHIVES=0
+TOTAL_NEW=0
+
+##############################################################################
+# Local Function Definitions
+##############################################################################
+
+title() {
+	test $LOGLEVEL -ge $LOGLEVEL_NORMAL && clear
+	msg normal "SCDIAG_CLIENT" "$CURRENT_SCRIPT v$SVER"
+}
+
+showHelp() {
+	[ -n "$1" ] && { echo "$1"; echo; }
+	echo "Usage: $CURRENT_SCRIPT -hl"
+	echo "Description:"
+	echo "  Assigns new supportconfig archives for analysis."
+	echo
+	echo "Options:"
+	echo "  -h  Show this screen and exit"
+	echo "  -l  Broker log: 0=Syslog(default) 1=Minimal 2=Verbose 3=Debug"
+	echo
+}
+
+msg() {
+	FACLEVEL='info'
+	case $1 in
+	debug) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_DEBUG ;;
+	verbose) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_VERBOSE ;;
+	normal) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_NORMAL ;;
+	min*) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_MIN ;;
+	silent) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_SILENT ;;
+	*) SYSTEM_LOGGER=1; CURRENT_LOGLEVEL=$LOGLEVEL_MIN ;;
+	esac
+	shift
+	if [ $LOGLEVEL -ge $CURRENT_LOGLEVEL ]; then
+		if [ $SYSTEM_LOGGER -gt 0 ]; then
+			[ -n "$2" ] && logger -p "user.${FACLEVEL}" "${CURRENT_SCRIPT}[$$]: [$1] $2" || logger -p "user.${FACLEVEL}" "${CURRENT_SCRIPT}[$$]: $1"
+			if [ $LOGLEVEL -gt $LOGLEVEL_SILENT ]; then
+				printf "%-15s %s\n" "$1" "$2"
+			fi
+		else
+			printf "%-15s %s\n" "$1" "$2"
+		fi
+	fi
+}
+
+notifyAdmin() {
+	msg debug '> notifyAdmin'
+	msg normal NOTIFY "Sending Broker Alert to Email(s): $EMAIL_ADMIN"
+	EVENT_STR=$1
+	shift
+	for SENDTO in $EMAIL_ADMIN
+	do
+		msg debug EMAIL "Send To: $SENDTO, Broker Alert: $EVENT_STR, $*"
+		echo "$*" | /usr/bin/mailx -ns "Broker Alert: $EVENT_STR" $SENDTO
+	done
+	msg debug '< notifyAdmin'
+}
+
+checkAgentActivity() {
+	msg debug " >> checkAgentActivity"
+	RCODE=0
+	msg debug " << checkAgentActivity" "Returns: $RCODE"
+	return $RCODE
+}
+
+confirmDatabaseAccess() {
+	ACTIVE_AGENTS=$(mysql -NB $DB_CONNECT -e "SELECT COUNT(*) FROM Agents WHERE AgentState='Active'")
+	RCODE=$?
+	if (( RCODE )); then
+		msg normal SQL "ERROR Cannot access administrative database $DB_NAME on localhost"
+		[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin "No DB Access" "ERROR Cannot access administrative database $DB_NAME on localhost"
+		exit 5
+	fi
+	if [ $ACTIVE_AGENTS -eq 0 ]; then
+		msg normal AGENTS "ERROR There are no Active agents"
+		[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin 'NO ACTIVE AGENTS' "ERROR: There are no Active agents, no supportconfig archives will be processed."
+	else
+		checkAgentActivity
+	fi
+}
+
+getCurlError() {
+	msg debug " >> getCurlError"
+	CURL_ERRORS='/usr/share/doc/packages/sca/curl.codes.txt'
+	ERRSTR=$(grep " ($RCODE) " $CURL_ERRORS | cut -d' ' -f1,2)
+	if [ -z "$ERRSTR" ]; then
+		ERRSTR="Unknown Error ($RCODE)"
+	fi
+	msg debug RESULT "Curl Error Transliteration: $ERRSTR"
+	msg debug " << getCurlError"
+}
+
+getArchives() {
+	msg debug "> getArchives"
+	msg debug CMD "Downloading file manifest from ${INSRC}"
+	case $INSRC_TYPE in
+	ftp)
+		curl -m 60 -l ${INSRC}/ 2>/dev/null > ${ARCHIVE_INBOUND}.raw
+		RCODE=$?
+		if [[ $RCODE -gt 0 ]]; then
+			getCurlError
+			[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin 'Cannot Download Archives' "ERROR Getting archive manifest; $ERRSTR, INSRC=${INSRC}"
+			exit $RCODE
+		fi
+		;;
+	file)
+		if [ -d ${INSRC_DIR} ]; then
+			ls -1 ${INSRC_DIR}/ 2>/dev/null > ${ARCHIVE_INBOUND}.raw
+		else
+			RCODE=5
+		fi
+		;;
+	esac
+	if (( RCODE )); then
+		[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin 'Cannot Download Archives' "ERROR Getting archive manifest; RC=$RCODE, INSRC=${INSRC}"
+		exit 8
+	fi
+
+	msg debug CMD "Converting dos2unix"
+	dos2unix ${ARCHIVE_INBOUND}.raw &>/dev/null
+	msg debug CMD "Inserting source URL"
+	sed -i -e "s!^!${INSRC}/|!" ${ARCHIVE_INBOUND}.raw
+	msg debug CMD "Filtering supportconfig archives from FTP file list"
+	egrep '.*t[g,b]z$|.*tar.gz$|.*tar.bz2$' ${ARCHIVE_INBOUND}.raw | sort | uniq | grep -v '[[:space:]]' > ${ARCHIVE_INBOUND}.filtered
+	sed -i -e "s/|/', '/g" ${ARCHIVE_INBOUND}.filtered
+	ALL_ARCHIVES=$(cat ${ARCHIVE_INBOUND}.filtered | wc -l)
+	msg debug CMD "Converting archive list to SQL import file"
+	sed -e "s/\(.*\)/('\1'),/g;\$,\$s/),/);/;1iINSERT IGNORE INTO \`Archives\` (\`FileLocation\`, \`Filename\`) VALUES" ${ARCHIVE_INBOUND}.filtered > ${ARCHIVE_INBOUND}
+	msg debug CMD "Importing archives into mySQL database"
+	cat ${ARCHIVE_INBOUND} | mysql $DB_CONNECT
+	RCODE=$?
+	if (( RCODE )); then
+		[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin 'SQL Import Failed' "ERROR Importing archive manifest into mySQL database $DB_NAME"
+	else
+		msg debug CMD "rm -f ${ARCHIVE_INBOUND}*"
+		rm -f ${ARCHIVE_INBOUND}*
+	fi
+	msg verbose MANIFEST "Incoming Archives: $ALL_ARCHIVES"
+	msg debug "< getArchives" "Returns: $RCODE, Incoming Archives: $ALL_ARCHIVES"
+	return $RCODE
+}
+
+checkStaleAssignedArchives() {
+	msg debug '> checkStaleAssignedArchives'
+	msg normal CHECK "Stale Assigned Archives"
+	ARCHIDS=$(mysql -BN $DB_CONNECT -e "SELECT CONCAT_WS(',', ArchiveID, AssignedAgentID, AssignedWorkerID) FROM Archives WHERE ArchiveState='Assigned' AND ArchiveEvent < SUBTIME(NOW(), $ARCHIVE_ASSIGNED_TIMEOUT)")
+	msg debug ARCHIDS "'$ARCHIDS'"
+	msg debug ARCHIVE_ASSIGNED_TIMEOUT "'$ARCHIVE_ASSIGNED_TIMEOUT'"
+	if [ -n "$ARCHIDS" ]; then
+		msg debug FOUND "Processing stale assigned archives"
+		STALE_ARCHIVES=0
+		for ARCHIVE_INFO in $ARCHIDS
+		do
+			((STALE_ARCHIVES++))
+			INFO_FOUND=1
+			ARCHIVE_ID=$(echo $ARCHIVE_INFO | cut -d, -f1)
+			AGENT_ID=$(echo $ARCHIVE_INFO | cut -d, -f2)
+			WORKER_ID=$(echo $ARCHIVE_INFO | cut -d, -f3)
+			msg debug ARCHIVE_ID "'$ARCHIVE_ID'"
+			msg debug AGENT_ID "'$AGENT_ID'"
+			msg debug WORKER_ID "'$WORKER_ID'"
+			[ -z "$ARCHIVE_ID" ] && INFO_FOUND=0
+			[ -z "$AGENT_ID" ] && INFO_FOUND=0
+			[ -z "$WORKER_ID" ] && WORKER_ID='NULL'
+			if (( INFO_FOUND )); then
+				msg verbose STALE "Reassigning Stale Archive_${ARCHIVE_ID}:Agent_${AGENT_ID}:Worker_${WORKER_ID}"
+				mysql $DB_CONNECT -e "UPDATE Agents SET AgentState='Stale', AgentEvent=NOW(), AgentMessage='Unprocessed assigned archives' WHERE AgentID='$AGENT_ID'"
+				mysql $DB_CONNECT -e "UPDATE AgentWorkers SET ArchiveAssigned=NULL WHERE ArchiveAssigned='$ARCHIVE_ID'"
+			else
+				[ $EMAIL_LEVEL -ge $EMAIL_NORMAL ] && notifyAdmin "STALE ArchiveID ${ARCHIVE_ID}" "Cannot get additional info on stale assigned ArchiveID $ARCHIVE_ID"
+			fi
+			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveState='New', ArchiveEvent=NOW(), ArchiveMessage='Reassigned', AssignedAgentID=NULL, AssignedWorkerID=NULL WHERE ArchiveID='$ARCHIVE_ID'"
+		done
+		if (( INFO_FOUND )); then
+			AGENT_HOSTNAME=$(mysql -NB $DB_CONNECT -e "SELECT Hostname FROM Agents WHERE AgentID=${AGENT_ID}")
+			[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin "STALE Agent ${AGENT_HOSTNAME}" "Removed stale agent ${AGENT_HOSTNAME} (AgentID ${AGENT_ID}) from agent queue"
+		else
+			[ $EMAIL_LEVEL -ge $EMAIL_MIN ] && notifyAdmin "Unknown Stale Agent" "Unknown agent did not process assigned archives"
+		fi
+		msg normal STALE "Reassigned stale archives: $STALE_ARCHIVES"
+	else
+		msg debug NONE "No stale assigned archives"
+	fi
+	msg debug '< checkStaleAssignedArchives'
+}
+
+reassignRetryArchives() {
+	msg debug '> reassignRetryArchives'
+	msg normal CHECK "Archives to Retry"
+	mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveState='New' WHERE ArchiveState='Retry' AND ArchiveEvent < SUBTIME(NOW(), $ARCHIVE_RETRY_TIMEOUT)"
+	msg debug '< reassignRetryArchives'
+}
+
+
+##############################################################################
+# Main Program Execution
+##############################################################################
+
+main() {
+	title
+	confirmDatabaseAccess
+	getArchives
+	msg min BROKER "v$SVER -- Archives: $ALL_ARCHIVES, New: ${TOTAL_NEW}"
+	reassignRetryArchives
+	checkStaleAssignedArchives
+}
+
+while getopts ':hl:' TMPOPT
+do
+	case $TMPOPT in
+		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;; 
+		\?) title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
+		h) LOGLEVEL=$LOGLEVEL_NORMAL; title; showHelp; exit 0 ;;
+		l) LOGLEVEL=$OPTARG ;;
+	esac
+done
+
+main
+
