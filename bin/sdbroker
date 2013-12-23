@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.0
+SVER=1.0.1
 
 ##############################################################################
 #  sdbroker - Supportconfig Analysis Broker
@@ -8,7 +8,7 @@ SVER=1.0.0
 #
 # Description:  Maintains the list of new archives.
 # Runs on:      Broker Server
-# Modified:     2013 Sep 23
+# Modified:     2013 Dec 23
 
 ##############################################################################
 #
@@ -159,14 +159,11 @@ getArchives() {
 
 	msg debug CMD "Converting dos2unix"
 	dos2unix ${ARCHIVE_INBOUND}.raw &>/dev/null
-	msg debug CMD "Inserting source URL"
-	sed -i -e "s!^!${INSRC}/|!" ${ARCHIVE_INBOUND}.raw
 	msg debug CMD "Filtering supportconfig archives from FTP file list"
 	egrep '.*t[g,b]z$|.*tar.gz$|.*tar.bz2$' ${ARCHIVE_INBOUND}.raw | sort | uniq | grep -v '[[:space:]]' > ${ARCHIVE_INBOUND}.filtered
-	sed -i -e "s/|/', '/g" ${ARCHIVE_INBOUND}.filtered
 	ALL_ARCHIVES=$(cat ${ARCHIVE_INBOUND}.filtered | wc -l)
 	msg debug CMD "Converting archive list to SQL import file"
-	sed -e "s/\(.*\)/('\1'),/g;\$,\$s/),/);/;1iINSERT IGNORE INTO \`Archives\` (\`FileLocation\`, \`Filename\`) VALUES" ${ARCHIVE_INBOUND}.filtered > ${ARCHIVE_INBOUND}
+	sed -e "s/\(.*\)/('\1'),/g;\$,\$s/),/);/;1iINSERT IGNORE INTO \`Archives\` (\`Filename\`) VALUES" ${ARCHIVE_INBOUND}.filtered > ${ARCHIVE_INBOUND}
 	msg debug CMD "Importing archives into mySQL database"
 	cat ${ARCHIVE_INBOUND} | mysql $DB_CONNECT
 	RCODE=$?

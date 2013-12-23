@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.0
+SVER=1.0.1
 
 ##############################################################################
 #  setup-sca - Supportconfig Analysis Appliance Setup Tool
@@ -8,8 +8,7 @@ SVER=1.0.0
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Required:     sca-broker.rpm sca-agent.rpm
-# Modified:     2013 Sep 25
+# Modified:     2013 Dec 23
 #
 ##############################################################################
 #
@@ -106,16 +105,16 @@ else
 	fi
 fi
 
-if rpm -q sca-agent &>/dev/null; then
+if rpm -q sca-appliance-agent &>/dev/null; then
 	printf "$FMT1" "SCA Agent Package" "Installed"
 else
 	printf "$FMT1" "SCA Agent Package" "ERROR"
-	echo "  Package not installed - sca-agent"; echo
+	echo "  Package not installed - sca-appliance-agent"; echo
 	echo "  Install the SCA Appliance agent package"; echo
 	exit 2
 fi
 
-if rpm -q sca-pattern-devel &>/dev/null; then
+if rpm -q sca-appliance-patdev &>/dev/null; then
 	printf "$FMT1" "SDP Database Package" "Installed"
 	INSTALL_SDP=1
 else

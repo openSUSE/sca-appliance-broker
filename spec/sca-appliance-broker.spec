@@ -18,7 +18,7 @@ Vendor:       SUSE Support
 License:      GPLv2
 Autoreqprov:  on
 Version:      1.2
-Release:      1.131220.PTF.1
+Release:      1.131223.PTF.1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -108,6 +108,11 @@ else
 fi
 
 %changelog
+* Mon Dec 23 2013 jrecord@suse.com
+- setup-sca package names changes
+- fixed blank hypervisor lines
+- sdbroker no longer inserts FileLocation
+
 * Thu Dec 20 2013 jrecord@suse.com
 - separated as individual RPM package
 - SCA reports page sorts by all columns

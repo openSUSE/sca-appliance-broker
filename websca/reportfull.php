@@ -7,11 +7,11 @@
 
 <!DOCTYPE html>
 <HTML>
-<!-- Modified: Date       = 2013 Dec 12 -->
+<!-- Modified: Date       = 2013 Dec 23 -->
 <?PHP
 	ini_set('include_path', '/srv/www/htdocs/scdiag/');
 	include 'db-config.php';
-	$sver = '1.0.5';
+	$sver = '1.0.6';
 	if ( isset($argc) ) {
 		$givenArchiveID = $argv[1];
 		if ( ! is_numeric($givenArchiveID) ) {
@@ -72,8 +72,10 @@
 	$OESDistro = $row_cell[22];
 	if( isset($OESDistro) ) { $OESDistro = htmlspecialchars($OESDistro); }
 	$OESDistroSP = htmlspecialchars($row_cell[23]);
-	$Hypervisor = htmlspecialchars($row_cell[24]);
-	$HypervisorIdentity = htmlspecialchars($row_cell[25]);
+	$Hypervisor = $row_cell[24];
+	if( isset($Hypervisor) ) { $Hypervisor = htmlspecialchars($Hypervisor); }
+	$HypervisorIdentity = $row_cell[25];
+	if( isset($HypervisorIdentity) ) { $HypervisorIdentity = htmlspecialchars($HypervisorIdentity); }
 	$PatternsTested = htmlspecialchars($row_cell[26]);
 	$PatternsApplicable = htmlspecialchars($row_cell[27]);
 	$PatternsCritical = htmlspecialchars($row_cell[28]);
