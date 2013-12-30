@@ -48,7 +48,8 @@
 	include 'db-close.php';
 	$row_cell = mysql_fetch_row($result);
 	$ArchiveID = htmlspecialchars($row_cell[0]);
-	$FileLocation = htmlspecialchars($row_cell[1]);
+	$FileLocation = $row_cell[1];
+	if( isset($FileLocation) ) { $FileLocation = htmlspecialchars($FileLocation); }
 	$Filename = htmlspecialchars($row_cell[2]);
 	$ArchiveState = htmlspecialchars($row_cell[3]);
 	$ArchiveEvent = htmlspecialchars($row_cell[4]);
@@ -143,7 +144,11 @@ function toggle(className)
 	echo "<H2><HR />Server Information</H2>\n";
 	echo "\n<TABLE WIDTH=100%>\n";
 	echo "<TR><TD><B>Analysis Date:</B></TD><TD>$ReportDate $ReportTime</TD></TR>\n";
-	echo "<TR><TD><B>Archive File:</B></TD><TD><A HREF=\"$FileLocation/$Filename\">$Filename</A></TD></TR>\n";
+	if( isset($FileLocation) ) {
+		echo "<TR><TD><B>Archive File:</B></TD><TD><A HREF=\"$FileLocation/$Filename\">$Filename</A></TD></TR>\n";
+	} else {
+		echo "<TR><TD><B>Archive File:</B></TD><TD>$Filename</TD></TR>\n";
+	}
 	echo "</TABLE>\n";
 
 	echo "\n<TABLE CELLPADDING=\"5\">\n";
