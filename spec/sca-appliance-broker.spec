@@ -6,10 +6,6 @@
 # neededforbuild
 %define sca_common sca
 
-##################################################################
-## Update FPAT_URL in reportfull.php before release
-##################################################################
-
 Name:         sca-appliance-broker
 Summary:      Supportconfig Analysis Appliance Broker
 Group:        Documentation/SuSE
@@ -18,21 +14,14 @@ Vendor:       SUSE Support
 License:      GPLv2
 Autoreqprov:  on
 Version:      1.2
-Release:      1.131223.PTF.1
+Release:      1.140102.PTF.1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
 Requires:     apache2
-Requires:     curl
-Requires:     php5, php5-bz2, php5-mbstring, php5-mcrypt, php5-mysql, php5-zip, php5-zlib
-Requires:     /usr/bin/ssh
 Requires:     /usr/bin/dos2unix
-Requires:     /bin/logger
-Requires:     /usr/bin/mysql
 Requires:     /usr/sbin/mysqld
-Requires:     /usr/bin/sed
-Requires:     /usr/bin/awk
-Requires:     /bin/ping
+Requires:     sca-appliance-common
 
 %description
 Monitors inbound supportconfig archives and is responsible for
@@ -64,7 +53,6 @@ install -m 644 config/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 544 bin/* $RPM_BUILD_ROOT/opt/%{sca_common}/bin
 install -m 644 websca/index.html $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 644 websca/* $RPM_BUILD_ROOT/srv/www/htdocs/sca
-install -m 400 websca/db-config.php $RPM_BUILD_ROOT/srv/www/htdocs/sca
 install -m 544 bin/scadb $RPM_BUILD_ROOT/usr/sbin
 install -m 544 bin/setup-sca $RPM_BUILD_ROOT/usr/sbin
 install -m 644 schema/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
@@ -108,6 +96,9 @@ else
 fi
 
 %changelog
+* Thu Jan 02 2014 jrecord@suse.com
+- separated sca-appliance-common files
+
 * Mon Dec 23 2013 jrecord@suse.com
 - setup-sca package names changes
 - fixed blank hypervisor lines
