@@ -14,7 +14,7 @@ Vendor:       SUSE Support
 License:      GPLv2
 Autoreqprov:  on
 Version:      1.2
-Release:      1.140102.PTF.1
+Release:      1.140103.PTF.1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -96,7 +96,8 @@ else
 fi
 
 %changelog
-* Thu Jan 02 2014 jrecord@suse.com
+* Thu Jan 03 2014 jrecord@suse.com
+- updated docs with --no-gpg-checks
 - separated sca-appliance-common files
 
 * Mon Dec 23 2013 jrecord@suse.com

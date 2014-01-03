@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>SCA Documentation</TITLE>
-<!-- Modified: Date       = 2013 Nov 21 -->
+<!-- Modified: Date       = 2014 Jan 03 -->
 </HEAD>
 <BODY>
 <H1 ALIGN="CENTER">SCA Documentation</H1>
@@ -114,17 +114,22 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 
 <HR>
 <H3><A NAME="update">SCA Appliance Updates</A></H3>
-<P>The SCA Appliance and its assoicated patterns are built in the OpenSUSE Build Service project <A HREF="https://build.opensuse.org/project/show/Novell:NTS:SCA" TARGET="scaobs">Supportconfig Analaysis Appliance</A>. The appliance is linked to this service making it possible to update your SCA Appliance when new patterns or updates are available. You do not need to reimage your server or VM.</P>
+<P>The SCA Appliance and its assoicated patterns are built in the OpenSUSE Build Service project <A HREF="https://build.opensuse.org/project/show/Novell:NTS:SCA" TARGET="scaobs">Supportconfig Analaysis Appliance</A>. The appliance is linked to this service making it possible to update your SCA Appliance when new patterns or updates are available. You do not need to reimage your server or VM. Patterns will automatically be updated each night when <B>sdagent-patterns</B> is run, but you can update the appliance and patterns manually. The appliance packages must be manually updated since <B>sdagent-patterns</B> only updates the patterns.</P>
 
 <P>Do the following to update the SCA Appliance</P>
 <OL>
 <LI>Login to the SCA Appliance console as root</LI>
-<LI>Run <B>zypper ref</B> to refresh the update repositories</LI>
+<LI>Run <B>zypper --no-gpg-checks refresh</B> to refresh the update repositories</LI>
 	<UL>
-	<LI>The first time you refresh, you will be prompted to reject or trust the Novell:NTS OBS Project key</LI>
+	<LI>The first time you refresh without --no-gpg-checks, you will be prompted to reject or trust the Novell:NTS OBS Project key</LI>
 	<LI>Select <B>a</B> to always trust the key</LI>
 	</UL>
-<LI>Run <B>zypper --non-interactive update sca-*</B> to update the appliance and its patterns</LI>
+<LI>Choose one of the following to update the appliance</LI>
+	<UL>
+	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-*</B> to update the appliance and its patterns</LI>
+	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-patterns-*</B> to update just the patterns</LI>
+	<LI>If you are just updating patterns, then run <B>sdagent-patterns</B></LI>
+	</UL>
 <LI>Once the patches have been installed, run <B>sdagent-patterns</B> to update the database</LI>
 	<UL>
 	<LI>This step is optional, as it will happen automatically at the end of the day</LI>
