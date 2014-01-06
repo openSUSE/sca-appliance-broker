@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>SCA Documentation</TITLE>
-<!-- Modified: Date       = 2014 Jan 03 -->
+<!-- Modified: Date       = 2014 Jan 06 -->
 </HEAD>
 <BODY>
 <H1 ALIGN="CENTER">SCA Documentation</H1>
@@ -29,7 +29,7 @@
 </OL>
 
 <OL><U>Changing the system root password</U>
-<LI>Login to the system console as root using the defaul password of <B>linux</B></LI>
+<LI>Login to the system console as root using the default password of <B>linux</B></LI>
 <LI>Type <B>passwd</B></LI>
 <LI>When prompted type in your new system root user password</LI>
 </OL>
@@ -76,7 +76,7 @@ OPTIONS
 
 <HR>
 <H3><A NAME="arch">Archive Mode</A></H3>
-<P>The default behavior is to delete all supportconfig archives in the /srv/ftp/upload directory once they have been successfully processed. However, you can change this behavior so the supportconfig archives are left in the /srv/ftp/upload directory for archive purposes. This is helpful when you want to save supportconfigs off the server. Comparing a supportconfig from a problem server with the supportconfig from its previously working condition is a valueable troubleshooting technique.</P>
+<P>The default behavior is to delete all supportconfig archives in the /srv/ftp/upload directory once they have been successfully processed. However, you can change this behavior so the supportconfig archives are left in the /srv/ftp/upload directory for archive purposes. This is helpful when you want to save supportconfigs off the server. Comparing a supportconfig from a problem server with the supportconfig from its previously working condition is a valuable troubleshooting technique. Enabling Archive Mode also activates a hyperlink to the archive in the SCA Report's Archive File field.</P>
 
 <P>Do the following to enable archive mode:</P>
 <OL>
@@ -114,7 +114,13 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 
 <HR>
 <H3><A NAME="update">SCA Appliance Updates</A></H3>
-<P>The SCA Appliance and its assoicated patterns are built in the OpenSUSE Build Service project <A HREF="https://build.opensuse.org/project/show/Novell:NTS:SCA" TARGET="scaobs">Supportconfig Analaysis Appliance</A>. The appliance is linked to this service making it possible to update your SCA Appliance when new patterns or updates are available. You do not need to reimage your server or VM. Patterns will automatically be updated each night when <B>sdagent-patterns</B> is run, but you can update the appliance and patterns manually. The appliance packages must be manually updated since <B>sdagent-patterns</B> only updates the patterns.</P>
+<P>The SCA Appliance and its associated patterns are built in the OpenSUSE Build Service project <A HREF="https://build.opensuse.org/project/show/Novell:NTS:SCA">Supportconfig Analysis Appliance</A>. The appliance is linked to this OBS service making it possible to update your SCA Appliance when new patterns or updates are available. You do not need to reimage your server or VM. Patterns will automatically be updated each night when <B>sdagent-patterns</B> is run, but you can update the appliance and patterns manually. The appliance packages must be manually updated since <B>sdagent-patterns</B> only updates the patterns.</P>
+
+<P>Do the following to manually update the SCA Appliance Patterns</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Run <B>sdagent-patterns</B></LI>
+</OL>
 
 <P>Do the following to update the SCA Appliance</P>
 <OL>
@@ -124,16 +130,7 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 	<LI>The first time you refresh without --no-gpg-checks, you will be prompted to reject or trust the Novell:NTS OBS Project key</LI>
 	<LI>Select <B>a</B> to always trust the key</LI>
 	</UL>
-<LI>Choose one of the following to update the appliance</LI>
-	<UL>
-	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-*</B> to update the appliance and its patterns</LI>
-	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-patterns-*</B> to update just the patterns</LI>
-	<LI>If you are just updating patterns, then run <B>sdagent-patterns</B></LI>
-	</UL>
-<LI>Once the patches have been installed, run <B>sdagent-patterns</B> to update the database</LI>
-	<UL>
-	<LI>This step is optional, as it will happen automatically at the end of the day</LI>
-	</UL>
+<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-appliance-*</B> to update the appliance and its patterns</LI>
 </OL>
 
 <HR>
@@ -147,7 +144,7 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 <LI>Make sure your supportutils package that provides supportconfig is up-to-date (see <A HREF="#getsc">Getting the Latest Supportconfig</A>)
 	<UL>
 	<LI>There is a bug in earlier supportconfig versions that will fail to upload with the -U option.</LI>
-	<LI>If you cannot update supportconfig, refer to the "Host Configuration" section in the <A HREF="https://www.suse.com/communities/conversations/creating-a-central-supportconfig-repository/" TARGET="_blank">Creating a Central Supportconfig Repository</A> article.</LI>
+	<LI>If you cannot update supportconfig, refer to the "Host Configuration" section in the <A HREF="https://www.suse.com/communities/conversations/creating-a-central-supportconfig-repository/">Creating a Central Supportconfig Repository</A> article.</LI>
 	</UL>
 <LI>Run <B>crontab -e</B> to create a supportconfig crontab entry</LI>
 <LI>Create the following entry</LI>
@@ -159,7 +156,7 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 <HR>
 <H3><A NAME="health">Basic Server Health Checks</A></H3>
 <P>When a server is not behaving correctly, it is important to check some basic server conditions such as free disk space, CPU utilization, memory usage and running process status. The SCA Appliance checks these basic conditions for you in the "Basic Health" category in the reports. However, you can manually review the conditions in the supportconfig archive.</P>
-<P>Refer to <A HREF="https://www.suse.com/communities/conversations/basic-server-health-check-supportconfig/" TARGET="_blank">A Basic Server Health Check with Supportconfig</A> for more details.</P>
+<P>Refer to <A HREF="https://www.suse.com/communities/conversations/basic-server-health-check-supportconfig/">A Basic Server Health Check with Supportconfig</A> for more details.</P>
 
 <HR>
 <H3><A NAME="getsc">Getting the Latest Supportconfig</A></H3>
@@ -167,13 +164,13 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 
 <P>To update from the published update channels, run <B>zypper up supportutils</B>.</P>
 
-<P>To update from the openSUSE Build Service (OBS), refer to "<A HREF="http://www.novell.com/communities/node/2332/supportconfig-linux" TARGET="_blank">Supportconfig for Linux</A>", Option A. This is the absolute current version.</P>
+<P>To update from the openSUSE Build Service (OBS), refer to "<A HREF="http://www.novell.com/communities/node/2332/supportconfig-linux">Supportconfig for Linux</A>", Option A. This is the absolute current version.</P>
 
 <HR>
 <H3><A NAME="schang">Troubleshooting Supportconfig Hangs</A></H3>
 <P>Sometimes supportconfig will hang. You can find out which command is causing the hang or even attempt to by-pass the hang using the Ctrl-\ key.</P>
 
-<P>Refer to <A HREF="https://www.suse.com/communities/conversations/troubleshooting-supportconfig-hang/" TARGET="_blank">Troubleshooting a supportconfig Hang<A> for more details.</P>
+<P>Refer to <A HREF="https://www.suse.com/communities/conversations/troubleshooting-supportconfig-hang/">Troubleshooting a supportconfig Hang<A> for more details.</P>
 <BR>
 </BODY>
 </HTML>
