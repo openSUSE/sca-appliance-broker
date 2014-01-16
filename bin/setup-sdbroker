@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.0
+SVER=1.0.1
 
 ##############################################################################
 #  setup-sdbroker - Supportconfig Analysis Broker Setup Tool
@@ -9,7 +9,7 @@ SVER=1.0.0
 # Description:  Creates the main mySQL database for the Supportconfig Diagnostic
 #               Tool infrastructure
 # Runs on:      Broker Server
-# Modified:     2013 Oct 02
+# Modified:     2014 Jan 16
 #
 ##############################################################################
 #
@@ -35,8 +35,8 @@ DB_USER='root'
 DB_NAME='ServerDiagnostics'
 DB_ALL_USERS="sdbroker, sdagent"
 CURRENT_SCRIPT=$(basename $0)
-SCDIAG_HOME='/opt/sca'
-BROKER_CONFIG='/etc/opt/sca/sdbroker.conf'
+SCDIAG_HOME='/usr/lib/sca'
+BROKER_CONFIG='/etc/sca/sdbroker.conf'
 DEF_SCHEMA='/usr/share/doc/packages/sca'
 DEF_CRON='/usr/share/doc/packages/sca/sdbroker.cron'
 CMB_CRON='/usr/share/doc/packages/sca/combined.cron'

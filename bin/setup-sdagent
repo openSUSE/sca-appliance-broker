@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.0
+SVER=1.0.1
 
 ##############################################################################
 #  sdagent-config - Supportconfig Analysis Agent Setup Tool
@@ -10,7 +10,7 @@ SVER=1.0.0
 #               with the Broker server and the mySQL database on the Broker
 #               server.
 # Runs on:      Agent Server
-# Modified:     2013 Sep 23
+# Modified:     2014 Jan 16
 #
 ##############################################################################
 #
@@ -34,7 +34,7 @@ SVER=1.0.0
 
 DB_USER='root'
 DB_NAME_ADMIN='ServerDiagnostics'
-DEF_HOME="/var/opt/sca"
+DEF_HOME="/var/tmp/sca"
 DEF_WORKERS=4
 CURRENT_SCRIPT=$(basename $0)
 

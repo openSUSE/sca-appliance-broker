@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.1
+SVER=1.0.2
 
 ##############################################################################
 #  setup-sca - Supportconfig Analysis Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.1
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2013 Dec 23
+# Modified:     2014 Jan 16
 #
 ##############################################################################
 #
@@ -236,7 +236,7 @@ if (( INSTALL_SDP )); then
 	else
 		printf "$FMT2" "SDP Database Configuration"
 		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
-		/opt/sca/bin/setup-sdp -c -p $PASS_MYSQL_ROOT &>$TMP
+		setup-sdp -c -p $PASS_MYSQL_ROOT &>$TMP
 		ERR=$?
 		if (( ERR > 0 )); then
 			echo ERROR
@@ -259,7 +259,7 @@ fi
 
 printf "$FMT2" "SCA Broker Setup"
 TMP=$(mktemp /tmp/setup-sca-sdbroker-XXXXXXXXXXXXXXX)
-/opt/sca/bin/setup-sdbroker -c -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+setup-sdbroker -c -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
 ERR=$?
 if (( ERR > 0 )); then
 	echo ERROR
@@ -272,7 +272,7 @@ fi
 
 printf "$FMT2" "SCA Agent Setup"
 TMP=$(mktemp /tmp/setup-sca-sdagent-XXXXXXXXXXXXXXX)
-/opt/sca/bin/setup-sdagent -c -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
+setup-sdagent -c -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
 ERR=$?
 if (( ERR > 0 )); then
 	echo ERROR
@@ -285,7 +285,7 @@ fi
 
 printf "$FMT2" "SCA Agent Configuration"
 TMP=$(mktemp /tmp/setup-sca-sdagent-config-XXXXXXXXXXXXXXX)
-/opt/sca/bin/sdagent-config -c -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+sdagent-config -c -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
 ERR=$?
 if (( ERR > 0 )); then
 	echo ERROR

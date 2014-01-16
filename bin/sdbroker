@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.1
+SVER=1.0.2
 
 ##############################################################################
 #  sdbroker - Supportconfig Analysis Broker
@@ -8,7 +8,7 @@ SVER=1.0.1
 #
 # Description:  Maintains the list of new archives.
 # Runs on:      Broker Server
-# Modified:     2013 Dec 23
+# Modified:     2014 Jan 16
 
 ##############################################################################
 #
@@ -31,7 +31,7 @@ SVER=1.0.1
 ##############################################################################
 
 CURRENT_SCRIPT=$(basename $0)
-. /etc/opt/sca/sdbroker.conf
+. /etc/sca/sdbroker.conf
 
 ##############################################################################
 # Global Variables
