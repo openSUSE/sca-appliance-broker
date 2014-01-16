@@ -1,4 +1,4 @@
-.TH sdbroker.conf 5 "21 Feb 2013" "sdborker.conf" "Supportconfig Diagnostic Manual"
+.TH sdbroker.conf 5 "16 Jan 2014" "sdborker.conf" "Supportconfig Diagnostic Manual"
 .SH NAME
 sdbroker.conf - Supportconfig Diagnostic Broker configuration file
 .SH DESCRIPTION
@@ -40,13 +40,13 @@ Run \fBsetup-sdbroker\fR to configure.
 SCA_WORK
 The broker's working directory.
 .RS
-Default: /var/opt/scdiag
+Default: /var/tmp/sca/
 .RE
 .TP
 ARCHIVE_INBOUND
 The archive import file for new supportconfigs.
 .RS
-Default: ${SCA_WORK}/manifest.archives.sql or /var/log/scdiag/manifest.archives.sql
+Default: ${SCA_WORK}/manifest.archives.sql or /var/tmp/sca/manifest.archives.sql
 .RE
 .TP
 EMAIL_ADMIN
