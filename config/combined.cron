@@ -1,5 +1,5 @@
--* * * * * /opt/sca/bin/sdbroker &>/dev/null # Regular archive checks
--*/30 * * * * /opt/sca/bin/sdbroker-monitor &>/dev/null  # Regular broker checks
--*/2 * * * * /opt/sca/bin/sdagent &>/dev/null  # Agent master process
--0 0 * * * /opt/sca/bin/sdagent-patterns &>/dev/null  # Nightly pattern updates
+-* * * * * /usr/sbin/sdbroker &>/dev/null # Regular archive checks
+-*/30 * * * * /usr/sbin/sdbroker-monitor &>/dev/null  # Regular broker checks
+-*/2 * * * * /usr/sbin/sdagent &>/dev/null  # Agent master process
+-0 0 * * * /usr/sbin/sdagent-patterns &>/dev/null  # Nightly pattern updates
 

@@ -35,7 +35,6 @@ DB_USER='root'
 DB_NAME='ServerDiagnostics'
 DB_ALL_USERS="sdbroker, sdagent"
 CURRENT_SCRIPT=$(basename $0)
-SCDIAG_HOME='/usr/lib/sca'
 BROKER_CONFIG='/etc/sca/sdbroker.conf'
 DEF_SCHEMA='/usr/share/doc/packages/sca'
 DEF_CRON='/usr/share/doc/packages/sca/sdbroker.cron'

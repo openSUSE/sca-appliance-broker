@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.1"
+SVER="1.0.3"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 
@@ -98,7 +98,7 @@ backup)
 	echo "Backing up $DB_NAME database, root password required"
 	BACKUP_DATE=$(date +"%y%m%d")
 	BACKUP_TIME=$(date +"%H%M")
-	BACKUP_FILE="${SCDIAG_HOME}/${DB_NAME}_backup_${BACKUP_DATE}_${BACKUP_TIME}.sql"
+	BACKUP_FILE="${SCA_WORK}/${DB_NAME}_backup_${BACKUP_DATE}_${BACKUP_TIME}.sql"
 	mysqldump -u root -p ${DB_NAME} > $BACKUP_FILE
 	ERR=$?
 	if ! (( $ERR )); then
@@ -267,8 +267,7 @@ workers|threads)
 		for (( I=EXISTING_THREADS; I<MAX_THREADS; I++ ))
 		do
 			WORKER_NUM=$((I+1))
-			WORKER_PATH="${SCDIAG_HOME}/worker${WORKER_NUM}"
-			mysql $DB_CONNECT -e "INSERT INTO AgentWorkers (WorkersAgentID, HomePath) VALUES ('$AGENT_ID', '$WORKER_PATH')"
+			mysql $DB_CONNECT -e "INSERT INTO AgentWorkers (WorkersAgentID, HomePath) VALUES ('$AGENT_ID', '/var/tmp/sca')"
 			ERR=$?
 			if (( ERR )); then
 				echo "Error: Adding worker thread $I to database"; echo; exit 4;

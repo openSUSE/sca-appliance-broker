@@ -1,3 +1,3 @@
--* * * * * /opt/sca/bin/sdbroker &>/dev/null  # Regular archive checks
--*/30 * * * * /opt/sca/bin/sdbroker-monitor &>/dev/null # Regular broker checks
+-* * * * * /usr/sbin/sdbroker &>/dev/null  # Regular archive checks
+-*/30 * * * * /usr/sbin/sdbroker-monitor &>/dev/null # Regular broker checks
 
