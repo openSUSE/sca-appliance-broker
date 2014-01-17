@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.3"
+SVER="1.0.4"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 
@@ -98,7 +98,7 @@ backup)
 	echo "Backing up $DB_NAME database, root password required"
 	BACKUP_DATE=$(date +"%y%m%d")
 	BACKUP_TIME=$(date +"%H%M")
-	BACKUP_FILE="${SCA_WORK}/${DB_NAME}_backup_${BACKUP_DATE}_${BACKUP_TIME}.sql"
+	BACKUP_FILE="${SCA_WORK}/sca_backup_${DB_NAME}_${BACKUP_DATE}_${BACKUP_TIME}.sql"
 	mysqldump -u root -p ${DB_NAME} > $BACKUP_FILE
 	ERR=$?
 	if ! (( $ERR )); then
