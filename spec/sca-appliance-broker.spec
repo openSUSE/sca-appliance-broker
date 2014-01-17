@@ -15,7 +15,7 @@ Vendor:       SUSE Support
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      0
+Release:      1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -87,6 +87,9 @@ else
 fi
 
 %changelog
+* Fri Jan 17 2014 jrecord@suse.com
+- documented backup and restore
+
 * Thu Jan 16 2014 jrecord@suse.com
 - relocated files according to FHS
 - updated DEF_HOME for FHS in /var/tmp

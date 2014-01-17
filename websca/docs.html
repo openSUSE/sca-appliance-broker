@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>SCA Documentation</TITLE>
-<!-- Modified: Date       = 2014 Jan 06 -->
+<!-- Modified: Date       = 2014 Jan 17 -->
 </HEAD>
 <BODY>
 <H1 ALIGN="CENTER">SCA Documentation</H1>
@@ -12,6 +12,8 @@
 <LI><A HREF="#arch">Archive Mode</A></LI>
 <LI><A HREF="#erpt">Emailing SCA Reports</A></LI>
 <LI><A HREF="#update">SCA Appliance Updates</A></LI>
+<LI><A HREF="#backup">SCA Appliance Backup</A></LI>
+<LI><A HREF="#restore">SCA Appliance Restore</A></LI>
 <LI><A HREF="#cron">Automating Supportconfig Uploads to the SCA Appliance</A></LI>
 <LI><A HREF="#health">Basic Server Health Checks</A></LI>
 <LI><A HREF="#getsc">Getting the Latest Supportconfig</A></LI>
@@ -131,6 +133,30 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 	<LI>Select <B>a</B> to always trust the key</LI>
 	</UL>
 <LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-appliance-*</B> to update the appliance and its patterns</LI>
+</OL>
+
+<HR>
+<H3><A NAME="backup">SCA Appliance Backup</A></H3>
+<P>You can backup the database of archives analyzed. This is useful when you want to reimage the appliance or update to a new version of the appliance.</P>
+<P>Do the following to backup your SCA Appliance database</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Run <B>scadb maint</B> to put the appliance in maintenance mode</LI>
+<LI>Run <B>scadb backup</B></LI>
+<LI>Run <B>scadb reset agents</B> to activate the appliance</LI>
+<LI>Copy the sca-backup-*sql.gz file to another server</LI>
+</OL>
+
+<HR>
+<H3><A NAME="restore">SCA Appliance Restore</A></H3>
+<P>You restore the SCA Appliance database data from the <B>scadb backup</B> file.</P>
+<P>Do the following to restore your SCA Appliance database</P>
+<OL>
+<LI>Login to the SCA Appliance console as root</LI>
+<LI>Copy the newest sca-backup-*sql.gz file to the SCA Appliance</LI>
+<LI>Run <B>gzip -d sca-backup-*sql.gz</B> to extract the file</LI>
+<LI>Run <B>scadb import sca-backup-*sql</B> to restore the data from the file into the database</LI>
+<LI>Run <B>scadb reset agents</B> to activate the appliance</LI>
 </OL>
 
 <HR>
