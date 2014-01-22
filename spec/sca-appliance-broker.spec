@@ -15,7 +15,7 @@ Vendor:       SUSE Support
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      1
+Release:      2
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -87,6 +87,10 @@ else
 fi
 
 %changelog
+* Wed Jan 22 2014 jrecord@suse.com
+- fixed config dir references in websca/docs.html
+- added pattern update in websca/docs.html
+
 * Fri Jan 17 2014 jrecord@suse.com
 - documented backup and restore
 

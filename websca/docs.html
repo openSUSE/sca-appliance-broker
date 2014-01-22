@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <TITLE>SCA Documentation</TITLE>
-<!-- Modified: Date       = 2014 Jan 17 -->
+<!-- Modified: Date       = 2014 Jan 22 -->
 </HEAD>
 <BODY>
 <H1 ALIGN="CENTER">SCA Documentation</H1>
@@ -83,7 +83,7 @@ OPTIONS
 <P>Do the following to enable archive mode:</P>
 <OL>
 <LI>Login to the SCA Appliance console as root</LI>
-<LI>Edit <B>/etc/opt/sca/sdagent.conf</B></LI>
+<LI>Edit <B>/etc/sca/sdagent.conf</B></LI>
 <LI>Change <B>ARCHIVE_MODE=0</B> to <B>ARCHIVE_MODE=1</B></LI>
 <LI>Save and exit</LI>
 <LI>All future supportconfigs will remain in the appliance's <B>/srv/ftp/upload</B> directory</LI>
@@ -97,7 +97,7 @@ OPTIONS
 <P>Do the following to configure emailing SCA Reports.</P>
 <OL>
 <LI>Login to the SCA Appliance console as root</LI>
-<LI>Edit <B>/etc/opt/sca/sdagent.conf</B></LI>
+<LI>Edit <B>/etc/sca/sdagent.conf</B></LI>
 <LI>Change root in <B>EMAIL_REPORT='root'</B> to a list of email addresses, separated by spaces, to which you want SCA Reports sent.</LI>
 For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 <LI>Change the <B>STATUS_NOTIFY_LEVEL</B> from <B>$STATUS_OFF</B> to the level of reports you want sent.</LI>
@@ -132,7 +132,12 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 	<LI>The first time you refresh without --no-gpg-checks, you will be prompted to reject or trust the Novell:NTS OBS Project key</LI>
 	<LI>Select <B>a</B> to always trust the key</LI>
 	</UL>
-<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-appliance-*</B> to update the appliance and its patterns</LI>
+<LI>Select one of the following:</LI>
+	<UL>
+	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-appliance-*</B> to update the appliance only</LI>
+	<LI>Run <B>zypper --no-gpg-checks --non-interactive update sca-*</B> to update the appliance and pattern packages</LI>
+	<LI>Run <B>zypper --no-gpg-checks --non-interactive update</B> to update the entire appliance</LI>
+	</UL>
 </OL>
 
 <HR>
@@ -157,6 +162,7 @@ For example: <B>EMAIL_REPORT='me@my.company.com&nbsp;you@my.company.com'</B><BR>
 <LI>Run <B>gzip -d sca-backup-*sql.gz</B> to extract the file</LI>
 <LI>Run <B>scadb import sca-backup-*sql</B> to restore the data from the file into the database</LI>
 <LI>Run <B>scadb reset agents</B> to activate the appliance</LI>
+<LI>Run <B>sdagent-patterns -u</B> to update the pattern modules in the database</LI>
 </OL>
 
 <HR>
