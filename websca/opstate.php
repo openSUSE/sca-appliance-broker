@@ -3,13 +3,13 @@
 
 
 <HTML>
+<!-- Modified: Date       = 2014 Jan 22 -->
 <HEAD>
 <TITLE>SCA Operations</TITLE>
-<!-- Modified: Date       = 2013 Oct 11 -->
 <?PHP
 	ini_set('include_path', '/srv/www/htdocs/scdiag/');
 	include 'db-config.php';
-	echo "<!-- Query: Refresh Rate  = $StatsRefresh seconds -->\n";
+	//echo "<!-- Query: Refresh Rate  = $StatsRefresh seconds -->\n";
 	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"$StatsRefresh;URL=opstate.php\">\n";
 ?>
 <META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
@@ -21,68 +21,68 @@
 	$query="SELECT ResultID FROM Results";
 	$result=mysql_query($query);
 	$CountResults=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Results            = $CountResults -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Results            = $CountResults -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
 	$query="SELECT ArchiveID FROM Archives";
 	$result=mysql_query($query);
 	$CountArchives=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Archives           = $CountArchives -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Archives           = $CountArchives -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
 	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='New' OR ArchiveState='Retry' OR ArchiveState='Assigned'";
 	$result=mysql_query($query);
 	$CountNew=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: New                = $CountNew -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: New                = $CountNew -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
 	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Identifying' OR ArchiveState='Analyzing' OR ArchiveState='Extracting' OR ArchiveState='Downloading' OR ArchiveState='Reporting'";
 	$result=mysql_query($query);
 	$CountActive=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Active             = $CountActive -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Active             = $CountActive -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
 
 	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Done'";
 	$result=mysql_query($query);
 	$CountDone=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Done               = $CountDone -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Done               = $CountDone -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
 	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Error'";
 	$result=mysql_query($query);
 	$CountError=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Error              = $CountError -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Error              = $CountError -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 	
 	include 'db-close.php';
@@ -135,12 +135,12 @@
 	if ( isset($DEBUG) ) { echo "<FONT SIZE=\"-1\">Query: Submitted -> <B>$query</B></FONT><BR>\n"; }
 	$result=mysql_query($query);
 	$num=mysql_numrows($result);
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Rows               = $num -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Rows               = $num -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 	include 'db-close.php';
 

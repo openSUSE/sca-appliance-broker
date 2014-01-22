@@ -1,7 +1,7 @@
 <?PHP include 'checklogin.php';?>
 
 <HTML>
-<!-- Modified: Date       = 2013 Dec 12 -->
+<!-- Modified: Date       = 2014 Jan 22 -->
 <HEAD>
 <?PHP
 	include 'db-config.php';
@@ -36,12 +36,12 @@
 
 	$rowNext = $rowStart + $Top;
 	$rowPrev = $rowStart - $Top;
-	echo "<!-- Variable: StatsRefresh    = $StatsRefresh -->\n";
-	echo "<!-- Variable: archiveType     = $archiveType -->\n";
-	echo "<!-- Variable: Top             = $Top -->\n";
-	echo "<!-- Variable: rowStart        = $rowStart -->\n";
-	echo "<!-- Variable: rowPrev         = $rowPrev -->\n";
-	echo "<!-- Variable: rowNext         = $rowNext -->\n";
+	//echo "<!-- Variable: StatsRefresh    = $StatsRefresh -->\n";
+	//echo "<!-- Variable: archiveType     = $archiveType -->\n";
+	//echo "<!-- Variable: Top             = $Top -->\n";
+	//echo "<!-- Variable: rowStart        = $rowStart -->\n";
+	//echo "<!-- Variable: rowPrev         = $rowPrev -->\n";
+	//echo "<!-- Variable: rowNext         = $rowNext -->\n";
 
 	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"$StatsRefresh;URL=detailarch.php?atp=$archiveType&top=$Top&row=$rowStart\">\n";
 	echo "<META HTTP-EQUIV=\"Content-Style-Type\" CONTENT=\"text/css\">\n";
@@ -91,14 +91,14 @@
 
 	// Create Archives table
 	include 'db-open.php';
-	echo "<!-- Query: Submitted          = $query -->\n";
+	//echo "<!-- Query: Submitted          = $query -->\n";
 	$result=mysql_query($query);
 	$num=mysql_numrows($result);
 	if ( $result ) {
-		echo "<!-- Query: Result             = Success -->\n";
-		echo "<!-- Query: Rows               = $num -->\n";
+		//echo "<!-- Query: Result             = Success -->\n";
+		//echo "<!-- Query: Rows               = $num -->\n";
 	} else {
-		echo "<!-- Query: Results            = FAILURE -->\n";
+		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 	include 'db-close.php';
 
