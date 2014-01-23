@@ -1,6 +1,6 @@
 <?PHP include 'checklogin.php';?>
 <HTML>
-//<!-- Modified: Date       = 2014 Jan 22 -->
+<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
 <HEAD>
 <?PHP
 	include 'db-config.php';

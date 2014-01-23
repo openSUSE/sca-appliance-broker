@@ -3,7 +3,7 @@
 
 
 <HTML>
-//<!-- Modified: Date       = 2014 Jan 22 -->
+<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Operations</TITLE>
 <?PHP
