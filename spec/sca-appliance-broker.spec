@@ -10,12 +10,10 @@ Name:         sca-appliance-broker
 Summary:      Supportconfig Analysis Appliance Broker
 URL:          https://bitbucket.org/g23guy/sca-appliance-broker
 Group:        Documentation/SuSE
-Distribution: SUSE Linux Enterprise
-Vendor:       SUSE Support
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      5
+Release:      6
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
