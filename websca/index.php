@@ -1,7 +1,7 @@
 <?PHP include 'checklogin.php';?>
 
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 Jan 27 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
 <?PHP
@@ -81,38 +81,39 @@
 	echo " ]<BR>\n";
 
 	include 'db-open.php';
+	$DB_FIELDS='ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture,ArchiveDate,ArchiveTime';
 	switch ($sortType) {
 	case 's':
 		//echo "<!-- Sorting by:          = Server -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'r':
 		//echo "<!-- Sorting by:          = Report Date -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY ReportDate DESC, ReportTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ReportDate DESC, ReportTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'd':
 		//echo "<!-- Sorting by:          = Distribution -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY Distro ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY Distro ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'a':
 		//echo "<!-- Sorting by:          = Architecture -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY Architecture ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY Architecture ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'c':
 		//echo "<!-- Sorting by:          = Critical -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsCritical DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsCritical DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'w':
 		//echo "<!-- Sorting by:          = Warning -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsWarning DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsWarning DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'm':
 		//echo "<!-- Sorting by:          = Recommended -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsRecommended DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS Archives WHERE ArchiveState='Done' ORDER BY PatternsRecommended DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'g':
 		//echo "<!-- Sorting by:          = Success -->\n";
-		$query="SELECT ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture FROM Archives WHERE ArchiveState='Done' ORDER BY PatternsSuccess DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS Archives WHERE ArchiveState='Done' ORDER BY PatternsSuccess DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	}
 	$result=mysql_query($query);
@@ -165,6 +166,7 @@
 	} else {
 		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&st=r\">Report Date</A></TH>";
 	}
+	echo "<TH ALIGN=\"left\">Supportconfig Date</TH>";
 	if ( $sortType == 'd' ) {	
 		echo "<TH ALIGN=\"left\">Distribution</TH>";
 	} else {
@@ -210,6 +212,8 @@
 		$Distro = htmlspecialchars($row_cell[8]);
 		$DistroSP = htmlspecialchars($row_cell[9]);
 		$Architecture = htmlspecialchars($row_cell[10]);
+		$ArchiveDate = htmlspecialchars($row_cell[11]);
+		$ArchiveTime = htmlspecialchars($row_cell[12]);
 
 		// Set row color
 		if ( $i%2 == 0 ) {
@@ -222,6 +226,7 @@
 		echo "<TR ALIGN=\"left\" CLASS=\"$row_color\">";
 		echo "<TD>$ServerName</TD>";
 		echo "<TD><A HREF=\"reportfull.php?aid=$ArchiveID\" TARGET=\"$ServerName\" TITLE=\"SCA Report for $ServerName\">$ReportDate $ReportTime</A></TD>";
+		echo "<TD>$ArchiveDate $ArchiveTime</TD>";
 		echo "<TD>$Distro SP$DistroSP</TD>";
 		echo "<TD>$Architecture</TD>";
 		echo "<TD>$PatternsCritical</TD>";

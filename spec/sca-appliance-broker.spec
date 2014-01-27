@@ -13,7 +13,7 @@ Group:        Documentation/SuSE
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      6
+Release:      6.140127.PTF.1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -85,6 +85,9 @@ else
 fi
 
 %changelog
+* Mon Jan 27 2014 jrecord@suse.com
+- added supportconfig run date to index.php
+
 * Wed Jan 22 2014 jrecord@suse.com
 - fixed config dir references in websca/docs.html
 - added pattern update in websca/docs.html
