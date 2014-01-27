@@ -27,6 +27,7 @@
 	switch ($sortType) {
 	case 's':
 	case 'r':
+	case 't':
 	case 'd':
 	case 'a':
 	case 'c':
@@ -90,6 +91,10 @@
 	case 'r':
 		//echo "<!-- Sorting by:          = Report Date -->\n";
 		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ReportDate DESC, ReportTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
+		break;
+	case 't':
+		//echo "<!-- Sorting by:          = Report Date -->\n";
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ArchiveDate DESC, ArchiveDate DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'd':
 		//echo "<!-- Sorting by:          = Distribution -->\n";
@@ -166,7 +171,11 @@
 	} else {
 		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&st=r\">Report Date</A></TH>";
 	}
-	echo "<TH ALIGN=\"left\">Supportconfig Date</TH>";
+	if ( $sortType == 't' ) {	
+		echo "<TH>Supportconfig Date</TH>";
+	} else {
+		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&st=t\">Supportconfig Date</A></TH>";
+	}
 	if ( $sortType == 'd' ) {	
 		echo "<TH ALIGN=\"left\">Distribution</TH>";
 	} else {
