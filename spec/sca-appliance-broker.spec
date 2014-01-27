@@ -13,7 +13,7 @@ Group:        Documentation/SuSE
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      7
+Release:      9
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -87,6 +87,7 @@ fi
 %changelog
 * Mon Jan 27 2014 jrecord@suse.com
 - added supportconfig run date to index.php
+- added report tag to scadb to manuall generate an html report
 
 * Wed Jan 22 2014 jrecord@suse.com
 - fixed config dir references in websca/docs.html

@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.4"
+SVER="1.0.6"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 
@@ -23,6 +23,7 @@ showHelp() {
 	echo " old <int>            Deletes old archives greater than <int> days old"
 	echo " del <int>            Deletes archive with <int> ArchiveID"
 	echo " reset agents         Activates the Agent and clears the agent threads"
+	echo " report <int>         Creates an HTML report file for the archive ID <int>"
 	echo " archive reset <int>  Configures an archive with archive ID <int> to be reanalyzed"
 	echo " archive ignore <int> Sets archive to error with archive ID <int>"
 	echo " archive done <int>   Sets archive to done with archive ID <int>"
@@ -182,6 +183,25 @@ archives)
 		;;
 	esac
 	;;
+report)
+	ARCHIVE_ID=$2
+	REPORT_BIN='/srv/www/htdocs/sca/reportfull.php'
+	if [[ -n "$ARCHIVE_ID" ]]; then
+		FILENAME=$(mysql $DB_CONNECT -NB -e "SELECT Filename FROM Archives WHERE ArchiveID=$ARCHIVE_ID")
+		if [[ -n "$FILENAME" ]]; then
+			REPORT_FILE="${SCA_WORK}/${FILENAME}_report.html"
+			php -f $REPORT_BIN $ARCHIVE_ID > $REPORT_FILE
+			echo "HTML Report: $REPORT_FILE"
+		else
+			echo "Error: Invalid Archive ID $ARCHIVE_ID"
+		fi
+		echo
+	else
+		echo "Error: Missing Archive ID"
+		echo
+		showHelp
+	fi
+	;;
 import)
 	FILE=$2
 	if [ -n "$FILE" ]; then
@@ -193,9 +213,11 @@ import)
 	;;
 maint)
 	echo "Changing to Maintenance Mode"
+	echo
 	mysql $DB_CONNECT -e "LOCK TABLES Agents WRITE"
 	mysql $DB_CONNECT -e "UPDATE Agents SET AgentEvent=NOW(), AgentState='Inactive', AgentMessage='Maintenance'"
 	mysql $DB_CONNECT -e "UNLOCK TABLES"
+	displayDatabase
 	;;
 old)
 	DAYS=$2
