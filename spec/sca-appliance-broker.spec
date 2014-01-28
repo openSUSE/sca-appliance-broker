@@ -13,7 +13,7 @@ Group:        Documentation/SuSE
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      9
+Release:      11
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -71,8 +71,9 @@ install -m 644 man/*.5.gz $RPM_BUILD_ROOT/usr/share/man/man5
 %doc /usr/share/doc/packages/%{sca_common}/*
 
 %post
-if [ -s /srv/www/htdocs/index.html ]; then
+if [[ -s /srv/www/htdocs/index.html ]]; then
 	if grep -i '<html><body><h1>It works!</h1></body></html>' /srv/www/htdocs/index.html &>/dev/null; then
+		mv /srv/www/htdocs/index.html /srv/www/htdocs/index.html.sca_orig
 		cp -a /usr/share/doc/packages/%{sca_common}/index.html /srv/www/htdocs/
 	else
 		echo
@@ -84,7 +85,19 @@ else
 	cp -a /usr/share/doc/packages/%{sca_common}/index.html /srv/www/htdocs/
 fi
 
+%postun
+if [[ -s /srv/www/htdocs/index.html.sca_orig ]]; then
+	mv /srv/www/htdocs/index.html.sca_orig /srv/www/htdocs/index.html
+elif grep -i 'sca/index.php' /srv/www/htdocs/index.html &>/dev/null; then
+	mv /srv/www/htdocs/index.html /srv/www/htdocs/index.html.sca_redirector
+fi
+
 %changelog
+* Tue Jan 28 2014 jrecord@sue.com
+- added postun
+- fixed supportconfig date sort order
+- updated docs.html with web-config.php
+
 * Mon Jan 27 2014 jrecord@suse.com
 - added supportconfig run date to index.php
 - added report tag to scadb to manuall generate an html report

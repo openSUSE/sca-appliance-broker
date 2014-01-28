@@ -1,7 +1,7 @@
 <?PHP include 'checklogin.php';?>
 
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 27 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 Jan 28 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
 <?PHP
@@ -94,7 +94,7 @@
 		break;
 	case 't':
 		//echo "<!-- Sorting by:          = Report Date -->\n";
-		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ArchiveDate DESC, ArchiveDate DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ArchiveDate DESC, ArchiveTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'd':
 		//echo "<!-- Sorting by:          = Distribution -->\n";
