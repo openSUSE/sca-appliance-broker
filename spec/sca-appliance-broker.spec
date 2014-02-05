@@ -1,4 +1,7 @@
-# Copyright (C) 2013,2014 SUSE LLC
+# spec file for package sca-appliance-broker
+#
+# Copyright (C) 2014 SUSE LLC
+#
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
@@ -13,7 +16,7 @@ Group:        Documentation/SuSE
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      11
+Release:      12
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -93,41 +96,4 @@ elif grep -i 'sca/index.php' /srv/www/htdocs/index.html &>/dev/null; then
 fi
 
 %changelog
-* Tue Jan 28 2014 jrecord@sue.com
-- added postun
-- fixed supportconfig date sort order
-- updated docs.html with web-config.php
-
-* Mon Jan 27 2014 jrecord@suse.com
-- added supportconfig run date to index.php
-- added report tag to scadb to manuall generate an html report
-
-* Wed Jan 22 2014 jrecord@suse.com
-- fixed config dir references in websca/docs.html
-- added pattern update in websca/docs.html
-- commented out debug statements to avoid xss
-
-* Fri Jan 17 2014 jrecord@suse.com
-- documented backup and restore
-
-* Thu Jan 16 2014 jrecord@suse.com
-- relocated files according to FHS
-- updated DEF_HOME for FHS in /var/tmp
-- fixed incorrect bin paths
-
-* Thu Jan 06 2014 jrecord@suse.com
-- updated docs with archive file link
-- updated docs with --no-gpg-checks
-- separated sca-appliance-common files
-
-* Mon Dec 23 2013 jrecord@suse.com
-- setup-sca package names changes
-- fixed blank hypervisor lines
-- sdbroker no longer inserts FileLocation
-
-* Thu Dec 20 2013 jrecord@suse.com
-- separated as individual RPM package
-- SCA reports page sorts by all columns
-- fixed SCA XSS vulnerabilities
-- fixed SCA SQL injection vulnerabilities
 

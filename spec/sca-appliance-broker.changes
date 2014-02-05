@@ -1,0 +1,51 @@
+-------------------------------------------------------------------
+Fri Jan 31 19:20:09 UTC 2014 - jrecord@suse.com
+
+- added postun
+- fixed supportconfig date sort order
+- updated docs.html with web-config.php
+- added supportconfig run date to index.php
+- added report tag to scadb to manuall generate an html report
+- Converted to .changes
+
+-------------------------------------------------------------------
+Wed Jan 22 17:27:26 MST 2014 jrecord@suse.com
+
+- fixed config dir references in websca/docs.html
+- added pattern update in websca/docs.html
+- commented out debug statements to avoid xss
+
+-------------------------------------------------------------------
+Fri Jan 17 17:27:26 MST 2014 jrecord@suse.com
+
+- documented backup and restore
+
+-------------------------------------------------------------------
+Thu Jan 16 17:27:26 MST 2014 jrecord@suse.com
+
+- relocated files according to FHS
+- updated DEF_HOME for FHS in /var/tmp
+- fixed incorrect bin paths
+
+-------------------------------------------------------------------
+Thu Jan 06 17:27:26 MST 2014 jrecord@suse.com
+
+- updated docs with archive file link
+- updated docs with --no-gpg-checks
+- separated sca-appliance-common files
+
+-------------------------------------------------------------------
+Mon Dec 23 17:27:26 MST 2013 jrecord@suse.com
+
+- setup-sca package names changes
+- fixed blank hypervisor lines
+- sdbroker no longer inserts FileLocation
+
+-------------------------------------------------------------------
+Thu Dec 20 17:27:26 MST 2013 jrecord@suse.com
+
+- separated as individual RPM package
+- SCA reports page sorts by all columns
+- fixed SCA XSS vulnerabilities
+- fixed SCA SQL injection vulnerabilities
+
