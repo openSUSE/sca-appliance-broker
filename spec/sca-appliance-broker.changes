@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Mar 13 17:37:01 UTC 2014 - jrecord@suse.com
+
+- Removed setup-sdp.1 (bnc#868235)
+- Change to System/Monitoring spec Group
+
+-------------------------------------------------------------------
 Sat Feb  8 22:05:45 UTC 2014 - jrecord@suse.com
 
 - Packaged COPYING.GPLv2
