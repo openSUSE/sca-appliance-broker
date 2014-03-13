@@ -44,7 +44,6 @@ gzip -9f man/*5
 pwd;ls -la
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/%{sca_common}
-install -d $RPM_BUILD_ROOT/var/tmp/%{sca_common}
 install -d $RPM_BUILD_ROOT/srv/www/htdocs/%{sca_common}
 install -d $RPM_BUILD_ROOT/usr/sbin
 install -d $RPM_BUILD_ROOT/usr/share/man/man1
@@ -64,7 +63,6 @@ install -m 644 man/*.5.gz $RPM_BUILD_ROOT/usr/share/man/man5
 %files
 %defattr(-,root,root)
 %dir /etc/%{sca_common}
-%dir /var/tmp/%{sca_common}
 %dir /srv/www/htdocs/%{sca_common}
 %dir /usr/share/doc/packages/%{sca_common}
 /usr/sbin/*

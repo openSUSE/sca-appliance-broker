@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.2
+SVER='1.0.3'
 
 ##############################################################################
 #  sdbroker - Supportconfig Analysis Broker
@@ -8,7 +8,7 @@ SVER=1.0.2
 #
 # Description:  Maintains the list of new archives.
 # Runs on:      Broker Server
-# Modified:     2014 Jan 16
+# Modified:     2014 Mar 13
 
 ##############################################################################
 #
@@ -236,6 +236,7 @@ reassignRetryArchives() {
 
 main() {
 	title
+	[[ -d $SCA_WORK ]] || mkdir -p $SCA_WORK
 	confirmDatabaseAccess
 	getArchives
 	msg min BROKER "v$SVER -- Archives: $ALL_ARCHIVES, New: ${TOTAL_NEW}"
