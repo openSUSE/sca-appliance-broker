@@ -1,0 +1,54 @@
+.TH setup-sca 8 "18 Mar 2014" "setup-sca" "Supportconfig Analysis Manual"
+.SH NAME
+setup-sca - SCA Appliance Setup Tool
+.SH SYNOPSIS
+setup-sca OPTIONS
+.SH DESCRIPTION
+Quick setup tool intended for a stand alone SCA appliance. It checks that all packages are installed, necessary
+services are running, and configures the SCA appliance components.
+.SH OPTIONS
+.TP
+\fB\-h\fR
+Show this help screen.
+.TP
+\fB\-c\fR
+Do not clear the screen
+.TP
+\fB\-p\fR \fIstring\fR
+The MySQL root password.
+.TP
+\fB\-u\fR \fIstring\fR
+The SCA user password (Default: MySQL root password)
+.TP
+\fB\-e\fR \fIstring\fR
+Admin email address (Default: local root user)
+.TP
+\fB\-s\fR \fIstring\fR
+Overrides the server hostname value
+.TP
+\fB\-f\fR
+Change to FTP archive source file:///srv/ftp/upload (Default: file:///tmp/)
+.TP
+\fB\-y\fR
+Confirms the deletion of a pre-existing database and users
+.SH EXAMPLES
+.TP
+setup-sca -cp linux
+Configures the server using a MySQL root password of linux to analyze supportconfigs placed in the /tmp directory.
+.SH AUTHOR
+Jason Record <jrecord@suse.com>
+.SH COPYRIGHT
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 2 of the License.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+.SH SEE ALSO
+.BR sdagent-config (8)
+

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER=1.0.2
+SVER=1.0.5
 
 ##############################################################################
-#  setup-sca - Supportconfig Analysis Appliance Setup Tool
-#  Copyright (C) 2013 SUSE LLC
+#  setup-sca - SCA Appliance Setup Tool
+#  Copyright (C) 2014 SUSE LLC
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 Jan 16
+# Modified:     2014 Mar 18
 #
 ##############################################################################
 #

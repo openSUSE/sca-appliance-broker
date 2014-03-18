@@ -1,16 +1,16 @@
 #!/bin/bash
 
-SVER=1.0.2
+SVER=1.0.5
 
 ##############################################################################
-#  sdagent-config - Supportconfig Analysis Agent Setup Tool
-#  Copyright (C) 2013 SUSE LLC
+#  sdagent-config - SCA Agent Setup Tool
+#  Copyright (C) 2014 SUSE LLC
 #
 # Description:  Configures the agent server so it knows how to communicate
 #               with the Broker server and the mySQL database on the Broker
 #               server.
-# Runs on:      Agent Server
-# Modified:     2014 Jan 16
+# Runs on:      Broker Server
+# Modified:     2014 Mar 18
 #
 ##############################################################################
 #

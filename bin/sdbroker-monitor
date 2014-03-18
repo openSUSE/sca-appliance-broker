@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER=1.0.1
+SVER=1.0.2
 
 ##############################################################################
-#  sdagent-healthcheck - Supportconfig Analysis Broker Monitor Tool
-#  Copyright (C) 2013 SUSE LLC
+#  sdbroker-monitor - SCA Broker Monitor
+#  Copyright (C) 2014 SUSE LLC
 #
 # Description:  Monitors the current status of Broker Server and it's Agents
 # Runs on:      Broker Server
-# Modified:     2014 Jan 16
+# Modified:     2014 Mar 18
 #
 ##############################################################################
 #
