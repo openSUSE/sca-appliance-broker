@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Tue Mar 18 21:55:51 UTC 2014 - jrecord@suse.com
+Thu Mar 20 16:03:32 UTC 2014 - jrecord@suse.com
 
+- Fixed man page headers
 - Moved section 1 man pages to section 8
 - Updated man page content
 - Added setup-sca.8 and sdbroker-monitor.8 man pages
