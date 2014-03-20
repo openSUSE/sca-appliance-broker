@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Thu Mar 20 16:03:32 UTC 2014 - jrecord@suse.com
+Thu Mar 20 17:55:19 UTC 2014 - jrecord@suse.com
 
+- Corrected man page location
 - Fixed man page headers
 - Moved section 1 man pages to section 8
 - Updated man page content

@@ -16,7 +16,7 @@ Group:        System/Monitoring
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      18
+Release:      19
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
@@ -37,7 +37,7 @@ Authors:
 %setup -q
 
 %build
-gzip -9f man/*1
+gzip -9f man/*8
 gzip -9f man/*5
 
 %install
@@ -46,7 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/%{sca_common}
 install -d $RPM_BUILD_ROOT/srv/www/htdocs/%{sca_common}
 install -d $RPM_BUILD_ROOT/usr/sbin
-install -d $RPM_BUILD_ROOT/usr/share/man/man1
+install -d $RPM_BUILD_ROOT/usr/share/man/man8
 install -d $RPM_BUILD_ROOT/usr/share/man/man5
 install -d $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 444 man/COPYING.GPLv2 $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
@@ -57,7 +57,7 @@ install -m 644 websca/* $RPM_BUILD_ROOT/srv/www/htdocs/%{sca_common}
 install -m 544 bin/* $RPM_BUILD_ROOT/usr/sbin
 install -m 644 schema/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 644 docs/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
-install -m 644 man/*.1.gz $RPM_BUILD_ROOT/usr/share/man/man1
+install -m 644 man/*.8.gz $RPM_BUILD_ROOT/usr/share/man/man8
 install -m 644 man/*.5.gz $RPM_BUILD_ROOT/usr/share/man/man5
 
 %files
@@ -67,7 +67,7 @@ install -m 644 man/*.5.gz $RPM_BUILD_ROOT/usr/share/man/man5
 %dir /usr/share/doc/packages/%{sca_common}
 /usr/sbin/*
 %config /etc/%{sca_common}/*
-%doc /usr/share/man/man1/*
+%doc /usr/share/man/man8/*
 %doc /usr/share/man/man5/*
 %attr(-,wwwrun,www) /srv/www/htdocs/%{sca_common}
 %attr(-,wwwrun,www) /usr/share/doc/packages/%{sca_common}/index.html
