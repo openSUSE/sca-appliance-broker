@@ -122,7 +122,7 @@ confirmDatabaseAccess() {
 getCurlError() {
 	msg debug " >> getCurlError"
 	CURL_ERRORS='/usr/share/doc/packages/sca/curl.codes.txt'
-	ERRSTR=$(grep " ($RCODE) " $CURL_ERRORS | cut -d' ' -f1,2)
+	ERRSTR=$(grep " ($RCODE) " $CURL_ERRORS 2>/dev/null | cut -d' ' -f1,2)
 	if [ -z "$ERRSTR" ]; then
 		ERRSTR="Unknown Error ($RCODE)"
 	fi
@@ -135,7 +135,7 @@ getArchives() {
 	msg debug CMD "Downloading file manifest from ${INSRC}"
 	case $INSRC_TYPE in
 	ftp)
-		curl -m 60 -l ${INSRC}/ 2>/dev/null > ${ARCHIVE_INBOUND}.raw
+		curl --max-time 60 --list-only ${INSRC}/ 2>/dev/null > ${ARCHIVE_INBOUND}.raw
 		RCODE=$?
 		if [[ $RCODE -gt 0 ]]; then
 			getCurlError
