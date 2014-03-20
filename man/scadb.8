@@ -16,8 +16,8 @@ Checks, optimizes and repairs tables
 \fBempty\fR
 Truncates Archives and Results, resets Agents and AgentWorkers
 .TP
-\fBreport \fIint\fR
-Creates an HTML report file for Archive ID \fIint\fR.
+\fBbackup\fR
+Creates a mysqldump file of the ServerDiagnostics database
 .TP
 \fBcmd\fR \fIquery\fR
 Supports a custom query
@@ -28,11 +28,41 @@ Imports the file a MySQL file
 \fBold\fR \fIinteger\fR
 Deletes old archives greater than \fIinteger\fR days old
 .TP
+\fBdel\fR \fIinteger\fR
+Deletes archive with \fIinteger\fR ArchiveID
+.TP
 \fBreset agents\fR
 Activates all agents and clears the agent threads
 .TP
-\fBreset archive\fR \fIinteger\fR
+\fBreport \fIint\fR
+Creates an HTML report file for Archive ID \fIint\fR.
+.TP
+\fBpending\fR [\fIinteger\fR]
+Shows pending archives with optional \fIinteger\fR row limit
+.TP
+\fBactive\fR [\fIinteger\fR]
+Shows active archives with optional \fIinteger\fR row limit
+.TP
+\fBdone\fR [\fIinteger\fR]
+Shows completed archives with optional \fIinteger\fR row limit
+.TP
+\fBerror\fR [\fIinteger\fR]
+Shows errored archives with optional \fIinteger\fR row limit
+.TP
+\fBarchive reset\fR \fIinteger\fR
 Resets an archive to be analyzed again. The archive's results are deleted and the archive is set to a New state.
+.TP
+\fBarchive ignore\fR \fIinteger\fR
+Sets the archive state to error with Archive ID \fIinteger\fR. The worker threads are cleaned up.
+.TP
+\fBarchive done\fR \fIinteger\fR
+Sets the archive state to done with Archive ID \fIinteger\fR.
+.TP
+\fBworkers add\fR \fIinteger\fR \fBon\fR \fIagent_id\fR
+Increases the number of agent threads by \fIinteger\fR amount on the agent with ID \fIagent_id\fR.
+.TP
+\fBworkers del\fR \fIinteger\fR \fBon\fR \fIagent_id\fR
+Decreases the number of agent threads by \fIinteger\fR amount on the agent with ID \fIagent_id\fR.
 .PD
 .SH AUTHOR
 Jason Record <jrecord@suse.com>

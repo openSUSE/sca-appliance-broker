@@ -1,6 +1,8 @@
 -------------------------------------------------------------------
-Thu Mar 20 20:39:31 UTC 2014 - jrecord@suse.com
+Thu Mar 20 22:32:49 UTC 2014 - jrecord@suse.com
 
+- Added current report options to scadb
+- Added missing content to scadb man page
 - Updated curl error processing
 - Corrected man page location
 - Fixed man page headers
