@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.5
+SVER=1.0.9
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.5
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 Mar 18
+# Modified:     2014 Mar 26
 #
 ##############################################################################
 #
@@ -56,7 +56,234 @@ showHelp() {
 	echo
 }
 
+serverAccess()
+{
+	printf "$FMT2" "Pinging $USE_HOSTNAME"
+	if ping -c1 -w1 $USE_HOSTNAME &>/dev/null; then
+		echo Done
+	else
+		USE_HOSTNAME='localhost'
+		echo "Failed, using $USE_HOSTNAME"
+		printf "$FMT2" "Pinging $USE_HOSTNAME"
+		if ping -c1 -w1 $USE_HOSTNAME &>/dev/null; then
+			echo Done
+		else
+			echo FAILED
+			echo; echo "  Cannot ping $USE_HOSTNAME"
+			echo "  Fix the network or use -s to override the server name"; echo
+			FATAL_ERROR=1
+		fi
+	fi
+}
 
+packageCheck()
+{
+	if rpm -q sca-appliance-agent &>/dev/null; then
+		printf "$FMT1" "SCA Agent Package" "Installed"
+	else
+		printf "$FMT1" "SCA Agent Package" "ERROR: Not Installed"
+		echo; echo "  Run: zypper install sca-appliance-agent"; echo
+		FATAL_ERROR=1
+	fi
+	if rpm -q sca-appliance-patdev &>/dev/null; then
+		printf "$FMT1" "SDP Database Package" "Installed"
+		INSTALL_SDP=1
+	else
+		printf "$FMT1" "SDP Database Package" "Not Installed"
+		INSTALL_SDP=0
+	fi
+
+	printf "$FMT2" "Additional Required Packages"
+	REQUIRED_PACKAGES='php5-bz2 php5-mbstring php5-mcrypt php5-mysql php5-zip php5-zlib'
+	MISSING_PACKAGES=''
+	for PACKAGE in $REQUIRED_PACKAGES
+	do
+		if ! rpm -q $PACKAGE &>/dev/null; then
+			MISSING_PACKAGES="$MISSING_PACKAGES $PACKAGE"
+		fi
+	done
+	if [[ -n "$MISSING_PACKAGES" ]]; then
+		echo ERROR
+		echo "  Missing required packages"
+		echo "  Install these packages: $MISSING_PACKAGES"
+		echo "  Restart the apache2 daemon"; echo
+		exit 2
+	else
+		echo Installed
+	fi
+}
+
+checkDaemons()
+{
+	printf "$FMT2" "Apache Daemon"
+	if rpm -q systemd &>/dev/null; then
+		if rpm -q apache2 &>/dev/null; then
+			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState apache2.service | cut -d= -f2)
+			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
+				SUB_STATE=$(systemctl show --system --no-pager -p SubState apache2.service | cut -d= -f2)
+				if echo $SUB_STATE | grep -i running &>/dev/null; then
+					echo "Active"
+				else
+					echo "ERROR: $SUB_STATE"
+					echo; echo "  Run: systemctl start apache2.service"; echo
+					FATAL_ERROR=1
+				fi
+			else
+				echo "ERROR: Disabled"
+				echo; echo "  Run: systemctl enable apache2.service"; echo
+				FATAL_ERROR=1
+			fi
+		else
+			echo "ERROR: Not Installed"
+			echo; echo "  Run: zypper install apache2"; echo
+			FATAL_ERROR=1
+		fi
+	else
+		echo "ERROR: Missing SystemD"
+		echo; echo "  Manual configuration required"; echo
+		FATAL_ERROR=1
+	fi
+
+	DAEMON_BIN="/etc/init.d/mysql"
+	printf "$FMT2" "MySQL Daemon"
+	if rpm -q mariadb &>/dev/null; then
+		if chkconfig mysql 2>/dev/null | grep on &>/dev/null; then
+			SUB_STATE=$(systemctl show --system --no-pager -p SubState mysql.service | cut -d= -f2)
+			if echo $SUB_STATE | grep 'running' &>/dev/null; then
+				echo "Active"
+				if [[ -z "$PASS_MYSQL_ROOT" ]]; then
+					printf "%s" " Enter MySQL root password: "
+					read -s PASS_MYSQL_ROOT
+					echo
+				else
+					printf "$FMT1" "MySQL Root Password" "Set"
+				fi
+				DB_ROOT="-u root -p${PASS_MYSQL_ROOT}"
+			else
+				echo "ERROR: $SUB_STATE"
+				echo; echo "  Run: /etc/init.d/mysql start"; echo
+				FATAL_ERROR=1
+			fi
+		else
+			echo "ERROR: Disabled"
+			echo; echo "  Run: chkconfig mysql on"; echo
+			FATAL_ERROR=1
+		fi
+	else
+		echo "ERROR: Not Installed"
+		echo; echo "  Run: zypper install mariadb"; echo
+		FATAL_ERROR=1
+	fi
+}
+
+checkDatabaseAccess()
+{
+	printf "$FMT2" "MySQL Database Access"
+	DATABASES=$(mysql $DB_ROOT -NB -e "show databases" 2>/dev/null)
+	if [[ -n "$DATABASES" ]]; then
+		echo Confirmed
+	else
+		echo 'ERROR: Denied'
+		echo; echo "  Confirm MySQL database root password"; echo
+		exit 3
+	fi
+}
+
+installSDP()
+{
+	printf "$FMT2" "SDP Database Configuration"
+	if echo "$DATABASES" | grep SCAPatterns &>/dev/null; then
+		echo "Already Installed"
+	else
+		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
+		setup-sdp -c -p $PASS_MYSQL_ROOT &>$TMP
+		ERR=$?
+		if (( ERR > 0 )); then
+			echo 'ERROR'
+			cat $TMP; rm -f $TMP; echo
+			FATAL_ERROR=1
+		else
+			echo 'Done'
+			sleep 1
+		fi
+	fi
+}
+
+setupBroker()
+{
+	printf "$FMT2" "SCA Broker Setup"
+	TMP=$(mktemp /tmp/setup-sca-sdbroker-XXXXXXXXXXXXXXX)
+	setup-sdbroker -c -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+	ERR=$?
+	if (( ERR > 0 )); then
+		echo ERROR
+		cat $TMP; rm -f $TMP; echo
+		exit 1
+	else
+		echo Done
+		sleep 1
+	fi
+}
+
+setupAgent()
+{
+	printf "$FMT2" "SCA Agent Setup"
+	TMP=$(mktemp /tmp/setup-sca-sdagent-XXXXXXXXXXXXXXX)
+	setup-sdagent -c -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
+	ERR=$?
+	if (( ERR > 0 )); then
+		echo ERROR
+		cat $TMP; rm -f $TMP; echo
+		exit 1
+	else
+		echo Done
+		sleep 1
+	fi
+}
+
+configureAgent()
+{
+	printf "$FMT2" "SCA Agent Configuration"
+	TMP=$(mktemp /tmp/setup-sca-sdagent-config-XXXXXXXXXXXXXXX)
+	sdagent-config -c -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+	ERR=$?
+	if (( ERR > 0 )); then
+		echo ERROR
+		cat $TMP; rm -f $TMP; echo
+		exit 1
+	else
+		echo Done
+		sleep 1
+	fi
+}
+
+configureCron()
+{
+	crontab /usr/share/doc/packages/sca/combined.cron
+	printf "$FMT1" "Install Cron Entries" "Done"
+}
+
+userPassword()
+{
+	if [[ -z "$PASS_USER_SCA" ]]; then
+		PASS_USER_SCA=$PASS_MYSQL_ROOT
+		PASS_USER_SCA_TEXT='Assigned (MySQL Root Password)'
+	else
+		PASS_USER_SCA_TEXT='Set'
+	fi
+	printf "$FMT1" "Scdiag User Password" "$PASS_USER_SCA_TEXT"
+	echo $PASS_USER_SCA | passwd --stdin sca &>/dev/null
+}
+
+cleanUp()
+{
+	rm -f /tmp/setup-sca-*
+	echo
+}
+
+############################################################################
+# variables
+############################################################################
 FMT1="%-30s %s\n"
 FMT2="%-30s "
 PASS_MYSQL_ROOT=''
@@ -67,6 +294,11 @@ CONFIRMED=''
 USE_HOSTNAME=''
 DAEMON_CHECK=1
 CLEAR=1
+FATAL_ERROR=0
+
+############################################################################
+# main
+############################################################################
 while getopts ':bchp:u:e:fys:' TMPOPT
 do
 	case $TMPOPT in
@@ -85,229 +317,36 @@ do
 done
 [[ -z "$EMAIL_USER_SCA" ]] && EMAIL_USER_SCA="root"
 [[ -z "$USE_HOSTNAME" ]] && USE_HOSTNAME=$HOSTNAME
+
+############################################################################
 (( CLEAR )) && clear
 title
-printf "$FMT2" "Pinging $USE_HOSTNAME"
-if ping -c1 -w1 $USE_HOSTNAME &>/dev/null; then
-	echo Done
-else
-	USE_HOSTNAME='localhost'
-	echo "Failed, using $USE_HOSTNAME"
-	printf "$FMT2" "Pinging $USE_HOSTNAME"
-	if ping -c1 -w1 $USE_HOSTNAME &>/dev/null; then
-		echo Done
-	else
-		echo FAILED
-		echo "  Cannot ping $USE_HOSTNAME"; echo
-		echo "  Fix the network or use -s to override the server name"; echo
-		exit 2
-	fi
-fi
-
-if rpm -q sca-appliance-agent &>/dev/null; then
-	printf "$FMT1" "SCA Agent Package" "Installed"
-else
-	printf "$FMT1" "SCA Agent Package" "ERROR"
-	echo "  Package not installed - sca-appliance-agent"; echo
-	echo "  Install the SCA Appliance agent package"; echo
-	exit 2
-fi
-
-if rpm -q sca-appliance-patdev &>/dev/null; then
-	printf "$FMT1" "SDP Database Package" "Installed"
-	INSTALL_SDP=1
-else
-	printf "$FMT1" "SDP Database Package" "Not Installed"
-	INSTALL_SDP=0
-fi
-
-printf "$FMT2" "Additional Required Packages"
-REQUIRED_PACKAGES='php5-bz2 php5-mbstring php5-mcrypt php5-mysql php5-zip php5-zlib'
-MISSING_PACKAGES=''
-for PACKAGE in $REQUIRED_PACKAGES
-do
-	if ! rpm -q $PACKAGE &>/dev/null; then
-		MISSING_PACKAGES="$MISSING_PACKAGES $PACKAGE"
-	fi
-done
-if [[ -n "$MISSING_PACKAGES" ]]; then
-	echo ERROR
-	echo "  Missing required packages"
-	echo "  Install these packages: $MISSING_PACKAGES"
-	echo "  Restart the apache2 daemon"; echo
-	exit 2
-else
-	echo Installed
-fi
-
+serverAccess
+packageCheck
 printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
 printf "$FMT1" "Administrator Email" "$EMAIL_USER_SCA"
-
 if (( DAEMON_CHECK )); then
-	printf "$FMT2" "Apache Daemon"
-	if rpm -q systemd &>/dev/null; then
-		systemctl status apache2.service &>/dev/null
-		RC=$?
-		if (( RC )); then
-			echo ERROR
-			if rpm -q apache2 &>/dev/null; then
-				echo "  Apache not active"; echo
-				echo "  Run: systemctl enable apache2.service; systemctl start apache2.service"; echo
-				echo
-				exit 1
-			else
-				echo "  Apache not installed"; echo
-			fi
-		else
-			echo Active
-		fi
-	else
-		DAEMON_BIN="/etc/init.d/apache2"
-		if [[ -x $DAEMON_BIN ]]; then
-			$DAEMON_BIN status &>/dev/null
-			RC=$?
-			if (( RC )); then
-				echo ERROR
-				echo "  Apache2 daemon is not active"; echo
-				DAEMON_BASE=$(basename $DAEMON_BIN)
-				echo "  Run: chkconfig $(basename $DAEMON_BASE) on; $DAEMON_BIN start"; echo
-				echo
-				exit 1
-			else
-				echo Active
-			fi
-		else
-			echo ERROR
-			echo "  Missing daemon $DAEMON_BIN"; echo
-			echo "  Install the Apache2 packages"; echo
-			exit 1
-		fi
-	fi
-
-	DAEMON_BIN="/etc/init.d/mysql"
-	printf "$FMT2" "MySQL Daemon"
-	if [[ -x $DAEMON_BIN ]]; then
-		$DAEMON_BIN status &>/dev/null
-		RC=$?
-		if (( RC )); then
-			echo ERROR
-			echo "  MySQL daemon is not active"; echo
-			DAEMON_BASE=$(basename $DAEMON_BIN)
-			echo "  Run: chkconfig $(basename $DAEMON_BASE) on; $DAEMON_BIN start"; echo
-			echo
-			exit 1
-		else
-			echo Active
-			if [[ -z "$PASS_MYSQL_ROOT" ]]; then
-				printf "%s" " Enter MySQL root password: "
-				read -s PASS_MYSQL_ROOT
-				echo
-			else
-				printf "$FMT1" "MySQL Root Password" "Set"
-			fi
-			DB_ROOT="-u root -p${PASS_MYSQL_ROOT}"
-
-			DATABASES=$(mysql $DB_ROOT -NB -e "show databases" 2>/dev/null)
-			printf "$FMT2" "MySQL Database Access"
-			if [[ -n "$DATABASES" ]]; then
-				echo Confirmed
-			else
-				echo ERROR
-				echo "  Cannot access MySQL database"; echo
-				echo "  Confirm MySQL database root password"; echo
-				exit 2
-			fi
-		fi
-	else
-		echo ERROR
-		echo "  Missing daemon $DAEMON_BIN"; echo
-		echo "  Install the MySQL database packages"; echo
-		exit 1
-	fi
+	checkDaemons
 else
 	printf "$FMT1" "Apache Daemon" "Not Checked"
 	printf "$FMT1" "MySQL Daemon" "Not Checked"
 fi
+(( FATAL_ERROR )) && { cleanUp; exit 2; }
 
-if (( INSTALL_SDP )); then
-	if echo "$DATABASES" | grep SCAPatterns &>/dev/null; then
-		printf "$FMT1" "SDP Database" "Already Installed"
-	else
-		printf "$FMT2" "SDP Database Configuration"
-		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
-		setup-sdp -c -p $PASS_MYSQL_ROOT &>$TMP
-		ERR=$?
-		if (( ERR > 0 )); then
-			echo ERROR
-			cat $TMP; rm -f $TMP; echo
-			exit 1
-		else
-			echo Done
-			sleep 1
-		fi
-	fi
-else
-	echo Skipped
-fi
+checkDatabaseAccess
+(( INSTALL_SDP )) && installSDP
 
 if echo "$DATABASES" | grep ServerDiagnostics &>/dev/null; then
 	printf "$FMT1" "SCA Database" "Already Installed"
-	echo
-	exit 2
+	FATAL_ERROR=1
 fi
+(( FATAL_ERROR )) && { cleanUp; exit 4; }
 
-printf "$FMT2" "SCA Broker Setup"
-TMP=$(mktemp /tmp/setup-sca-sdbroker-XXXXXXXXXXXXXXX)
-setup-sdbroker -c -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
-ERR=$?
-if (( ERR > 0 )); then
-	echo ERROR
-	cat $TMP; rm -f $TMP; echo
-	exit 1
-else
-	echo Done
-	sleep 1
-fi
-
-printf "$FMT2" "SCA Agent Setup"
-TMP=$(mktemp /tmp/setup-sca-sdagent-XXXXXXXXXXXXXXX)
-setup-sdagent -c -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
-ERR=$?
-if (( ERR > 0 )); then
-	echo ERROR
-	cat $TMP; rm -f $TMP; echo
-	exit 1
-else
-	echo Done
-	sleep 1
-fi
-
-printf "$FMT2" "SCA Agent Configuration"
-TMP=$(mktemp /tmp/setup-sca-sdagent-config-XXXXXXXXXXXXXXX)
-sdagent-config -c -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
-ERR=$?
-if (( ERR > 0 )); then
-	echo ERROR
-	cat $TMP; rm -f $TMP; echo
-	exit 1
-else
-	echo Done
-	sleep 1
-fi
-
-crontab /usr/share/doc/packages/sca/combined.cron
-printf "$FMT1" "Install Cron Entries" "Done"
-
-if [[ -z "$PASS_USER_SCA" ]]; then
-	PASS_USER_SCA=$PASS_MYSQL_ROOT
-	PASS_USER_SCA_TEXT='Assigned (MySQL Root Password)'
-else
-	PASS_USER_SCA_TEXT='Set'
-fi
-printf "$FMT1" "Scdiag User Password" "$PASS_USER_SCA_TEXT"
-echo $PASS_USER_SCA | passwd --stdin sca &>/dev/null
-
-rm -f /tmp/setup-sca-*
-echo
+setupBroker
+setupAgent
+configureAgent
+configureCron
+userPassword
+cleanUp
 
 
