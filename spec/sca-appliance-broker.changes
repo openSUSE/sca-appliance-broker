@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Wed Mar 26 18:42:46 UTC 2014 - jrecord@suse.com
+Wed Mar 26 22:44:30 UTC 2014 - jrecord@suse.com
 
+- User password removed from setup-sca
 - Fixed setup-sca status checks (bnc#870402)
 
 -------------------------------------------------------------------

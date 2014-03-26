@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.11
+SVER=1.0.12
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -347,7 +347,7 @@ setupBroker
 setupAgent
 configureAgent
 configureCron
-userPassword
+#userPassword
 cleanUp
 
 
