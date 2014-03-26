@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.9
+SVER=1.0.11
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -46,6 +46,7 @@ showHelp() {
 	echo
 	echo 'Options:'
 	echo '  -h Show this screen and exit'
+	echo '  -b Disable Apache and MySQL daemon checks'
 	echo '  -c Do not clear the screen'
 	echo '  -p <str> MySQL root password'
 	echo '  -u <str> sca user password (Default: MySQL root password)'
@@ -148,8 +149,13 @@ checkDaemons()
 	printf "$FMT2" "MySQL Daemon"
 	if rpm -q mariadb &>/dev/null; then
 		if chkconfig mysql 2>/dev/null | grep on &>/dev/null; then
-			SUB_STATE=$(systemctl show --system --no-pager -p SubState mysql.service | cut -d= -f2)
-			if echo $SUB_STATE | grep 'running' &>/dev/null; then
+			$DAEMON_BIN status | grep running &>/dev/null
+			NOT_RUNNING=$?
+			if (( NOT_RUNNING )); then
+				echo "ERROR: Not Active"
+				echo; echo "  Run: /etc/init.d/mysql start"; echo
+				FATAL_ERROR=1
+			else
 				echo "Active"
 				if [[ -z "$PASS_MYSQL_ROOT" ]]; then
 					printf "%s" " Enter MySQL root password: "
@@ -159,10 +165,6 @@ checkDaemons()
 					printf "$FMT1" "MySQL Root Password" "Set"
 				fi
 				DB_ROOT="-u root -p${PASS_MYSQL_ROOT}"
-			else
-				echo "ERROR: $SUB_STATE"
-				echo; echo "  Run: /etc/init.d/mysql start"; echo
-				FATAL_ERROR=1
 			fi
 		else
 			echo "ERROR: Disabled"
@@ -181,6 +183,7 @@ checkDatabaseAccess()
 	printf "$FMT2" "MySQL Database Access"
 	DATABASES=$(mysql $DB_ROOT -NB -e "show databases" 2>/dev/null)
 	if [[ -n "$DATABASES" ]]; then
+		(( INSTALL_SDP )) && INSTALL_SDP_CONFIRMED=1
 		echo Confirmed
 	else
 		echo 'ERROR: Denied'
@@ -295,6 +298,7 @@ USE_HOSTNAME=''
 DAEMON_CHECK=1
 CLEAR=1
 FATAL_ERROR=0
+INSTALL_SDP_CONFIRMED=0
 
 ############################################################################
 # main
@@ -327,21 +331,18 @@ printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
 printf "$FMT1" "Administrator Email" "$EMAIL_USER_SCA"
 if (( DAEMON_CHECK )); then
 	checkDaemons
+	checkDatabaseAccess
 else
 	printf "$FMT1" "Apache Daemon" "Not Checked"
 	printf "$FMT1" "MySQL Daemon" "Not Checked"
 fi
 (( FATAL_ERROR )) && { cleanUp; exit 2; }
-
-checkDatabaseAccess
-(( INSTALL_SDP )) && installSDP
-
+(( INSTALL_SDP_CONFIRMED )) && installSDP
 if echo "$DATABASES" | grep ServerDiagnostics &>/dev/null; then
 	printf "$FMT1" "SCA Database" "Already Installed"
 	FATAL_ERROR=1
 fi
 (( FATAL_ERROR )) && { cleanUp; exit 4; }
-
 setupBroker
 setupAgent
 configureAgent
