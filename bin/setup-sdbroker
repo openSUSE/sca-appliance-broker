@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.5
+SVER=1.0.6
 
 ##############################################################################
 #  setup-sdbroker - SCA Broker Setup Tool
@@ -9,7 +9,7 @@ SVER=1.0.5
 # Description:  Creates the main mySQL database for the Supportconfig Diagnostic
 #               Tool infrastructure
 # Runs on:      Broker Server
-# Modified:     2014 Mar 18
+# Modified:     2014 Apr 22
 #
 ##############################################################################
 #
@@ -35,6 +35,7 @@ DB_NAME='ServerDiagnostics'
 DB_ALL_USERS="sdbroker, sdagent"
 CURRENT_SCRIPT=$(basename $0)
 BROKER_CONFIG='/etc/sca/sdbroker.conf'
+WEB_CONFIG='/srv/www/htdocs/sca/web-config.php'
 DEF_SCHEMA='/usr/share/doc/packages/sca'
 DEF_CRON='/usr/share/doc/packages/sca/sdbroker.cron'
 CMB_CRON='/usr/share/doc/packages/sca/combined.cron'
@@ -54,7 +55,6 @@ title() {
 }
 
 showHelp() {
-	clear
 	title
 	[ -n "$1" ] && { echo "$1"; echo; }
 	echo "Usage: $CURRENT_SCRIPT -p <root_password> -b <sdbroker_password> -e <email> -i <url> [OPTIONS]"
@@ -64,9 +64,9 @@ showHelp() {
 	echo
 	echo 'Options:'
 	echo '  -h Show this screen and exit'
-	echo '  -c Do not clear the screen'
 	echo '  -p <str> MySQL root password'
 	echo '  -b <str> MySQL sdbroker password'
+	echo "  -w <str> Web user password"
 	echo "  -e <email> Admin email address"
 	echo '  -i <str> Input source URL'
 	echo '     Example: ftp://ftp.server.org/incoming'
@@ -170,6 +170,13 @@ main() {
 		echo
 		exit 3
 	fi
+	if [[ -e $WEB_CONFIG ]]; then
+		sed -i -e "s!\"linux\";!\"${WEB_USER_PASS}\";!g" $WEB_CONFIG
+	else
+		echo "ERROR: File not found: $WEB_CONFIG"
+		echo
+		exit 3
+	fi
 	DB_CONNECT="-u sdbroker -p${OPT_PASS} $DB_NAME"
 	mysql $DB_CONNECT -e "SHOW TABLES"
 	if [ $? -gt 0 ]; then
@@ -194,29 +201,29 @@ OPT_PASS=''
 OPT_SCHEMA=''
 OPT_INSRC=''
 OPT_EMAIL_ADMIN=''
-CLEAR=1
-while getopts ':chb:e:i:p:s:y' TMPOPT
+WEB_USER_PASS=''
+while getopts ':hb:e:i:p:s:yw:' TMPOPT
 do
 	case $TMPOPT in
 		\:) showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
 		\?) showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
-		c) CLEAR=0 ;;
-		h) clear; title; showHelp; exit 0 ;;
+		h) title; showHelp; exit 0 ;;
 		p) DB_PASS=$OPTARG ;;
 		b) OPT_PASS=$OPTARG ;;
 		e) OPT_EMAIL_ADMIN=$OPTARG ;;
 		s) OPT_SCHEMA=$OPTARG ;;
 		i) OPT_INSRC=$OPTARG ;;
 		y) CONFIRMED=1 ;;
+		w) WEB_USER_PASS=$OPTARG ;;
 	esac
 done
-[ -z "$OPT_PASS" ] && { showHelp "ERROR: Missing MySQL sdbroker Password"; exit 1; }
-[ -z "$DB_PASS" ] && { showHelp "ERROR: Missing MySQL Root Password"; exit 1; }
-[ -z "$OPT_INSRC" ] && { showHelp "ERROR: Missing Input Source URL"; exit 1; }
-[ -z "$OPT_EMAIL_ADMIN" ] && { showHelp "ERROR: Missing Admin email address"; exit 1; }
-[ -z "$OPT_SCHEMA" ] && SCHEMA_PATH=$DEF_SCHEMA || SCHEMA_PATH=$OPT_SCHEMA
+[[ -z "$OPT_PASS" ]] && { showHelp "ERROR: Missing MySQL sdbroker Password"; exit 1; }
+[[ -z "$DB_PASS" ]] && { showHelp "ERROR: Missing MySQL Root Password"; exit 1; }
+[[ -z "$OPT_INSRC" ]] && { showHelp "ERROR: Missing Input Source URL"; exit 1; }
+[[ -z "$OPT_EMAIL_ADMIN" ]] && { showHelp "ERROR: Missing Admin email address"; exit 1; }
+[[ -z "$OPT_SCHEMA" ]] && SCHEMA_PATH=$DEF_SCHEMA || SCHEMA_PATH=$OPT_SCHEMA
+[[ -z "$WEB_USER_PASS" ]] && { showHelp "ERROR: Missing web user password"; exit 1; }
 
-[ $CLEAR -gt 0 ] && clear
 title
 main
 

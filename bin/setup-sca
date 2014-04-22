@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.12
+SVER=1.0.15
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.12
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 Mar 26
+# Modified:     2014 Apr 22
 #
 ##############################################################################
 #
@@ -47,9 +47,8 @@ showHelp() {
 	echo 'Options:'
 	echo '  -h Show this screen and exit'
 	echo '  -b Disable Apache and MySQL daemon checks'
-	echo '  -c Do not clear the screen'
 	echo '  -p <str> MySQL root password'
-	echo '  -u <str> sca user password (Default: MySQL root password)'
+	echo '  -w <str> Web user password'
 	echo "  -e <email> Admin email address (Default: local root user)"
 	echo "  -s <server_name> Override the server hostname"
 	echo "  -f Change to FTP archive source file:///srv/ftp/upload (Default: $ARCHIVE_LOCATION)"
@@ -199,11 +198,11 @@ installSDP()
 		echo "Already Installed"
 	else
 		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
-		setup-sdp -c -p $PASS_MYSQL_ROOT &>$TMP
+		setup-sdp -p $PASS_MYSQL_ROOT &>$TMP
 		ERR=$?
 		if (( ERR > 0 )); then
 			echo 'ERROR'
-			cat $TMP; rm -f $TMP; echo
+			cat $TMP
 			FATAL_ERROR=1
 		else
 			echo 'Done'
@@ -214,13 +213,23 @@ installSDP()
 
 setupBroker()
 {
+	if [[ -z "$PASS_WEB_USER" ]]; then
+		printf "$FMT1" "Web User Password" "Not Set"
+		printf "%s" " Enter Web User password: "
+		read -s PASS_WEB_USER
+		echo
+	else
+		printf "$FMT1" "Web User Password" "Set"
+	fi
+
 	printf "$FMT2" "SCA Broker Setup"
 	TMP=$(mktemp /tmp/setup-sca-sdbroker-XXXXXXXXXXXXXXX)
-	setup-sdbroker -c -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+	setup-sdbroker -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION -w $PASS_WEB_USER &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
-		cat $TMP; rm -f $TMP; echo
+		cat $TMP
+		cleanUp
 		exit 1
 	else
 		echo Done
@@ -232,11 +241,12 @@ setupAgent()
 {
 	printf "$FMT2" "SCA Agent Setup"
 	TMP=$(mktemp /tmp/setup-sca-sdagent-XXXXXXXXXXXXXXX)
-	setup-sdagent -c -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
+	setup-sdagent -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
-		cat $TMP; rm -f $TMP; echo
+		cat $TMP
+		cleanUp
 		exit 1
 	else
 		echo Done
@@ -248,11 +258,12 @@ configureAgent()
 {
 	printf "$FMT2" "SCA Agent Configuration"
 	TMP=$(mktemp /tmp/setup-sca-sdagent-config-XXXXXXXXXXXXXXX)
-	sdagent-config -c -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+	sdagent-config -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
-		cat $TMP; rm -f $TMP; echo
+		cat $TMP
+		cleanUp
 		exit 1
 	else
 		echo Done
@@ -264,18 +275,6 @@ configureCron()
 {
 	crontab /usr/share/doc/packages/sca/combined.cron
 	printf "$FMT1" "Install Cron Entries" "Done"
-}
-
-userPassword()
-{
-	if [[ -z "$PASS_USER_SCA" ]]; then
-		PASS_USER_SCA=$PASS_MYSQL_ROOT
-		PASS_USER_SCA_TEXT='Assigned (MySQL Root Password)'
-	else
-		PASS_USER_SCA_TEXT='Set'
-	fi
-	printf "$FMT1" "Scdiag User Password" "$PASS_USER_SCA_TEXT"
-	echo $PASS_USER_SCA | passwd --stdin sca &>/dev/null
 }
 
 cleanUp()
@@ -290,29 +289,27 @@ cleanUp()
 FMT1="%-30s %s\n"
 FMT2="%-30s "
 PASS_MYSQL_ROOT=''
-PASS_USER_SCA=''
+PASS_WEB_USER=''
 EMAIL_USER_SCA=''
 ARCHIVE_LOCATION='file:///tmp/'
 CONFIRMED=''
 USE_HOSTNAME=''
 DAEMON_CHECK=1
-CLEAR=1
 FATAL_ERROR=0
 INSTALL_SDP_CONFIRMED=0
 
 ############################################################################
 # main
 ############################################################################
-while getopts ':bchp:u:e:fys:' TMPOPT
+while getopts ':bhp:w:e:fys:' TMPOPT
 do
 	case $TMPOPT in
 		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
 		\?) title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
 		h) title; showHelp; exit 0 ;;
 		b) DAEMON_CHECK=0 ;;
-		c) CLEAR=0 ;;
 		p) PASS_MYSQL_ROOT=$OPTARG ;;
-		u) PASS_USER_SCA=$OPTARG ;;
+		w) PASS_WEB_USER=$OPTARG ;;
 		s) USE_HOSTNAME=$OPTARG ;;
 		e) EMAIL_USER_SCA=$OPTARG ;;
 		f) ARCHIVE_LOCATION="file:///srv/ftp/upload" ;;
@@ -323,7 +320,6 @@ done
 [[ -z "$USE_HOSTNAME" ]] && USE_HOSTNAME=$HOSTNAME
 
 ############################################################################
-(( CLEAR )) && clear
 title
 serverAccess
 packageCheck
@@ -347,7 +343,6 @@ setupBroker
 setupAgent
 configureAgent
 configureCron
-#userPassword
 cleanUp
 
 

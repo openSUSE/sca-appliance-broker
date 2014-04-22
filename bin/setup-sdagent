@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.5
+SVER=1.0.6
 
 ##############################################################################
 #  sdagent-config - SCA Agent Setup Tool
@@ -10,7 +10,7 @@ SVER=1.0.5
 #               with the Broker server and the mySQL database on the Broker
 #               server.
 # Runs on:      Broker Server
-# Modified:     2014 Mar 18
+# Modified:     2014 Apr 22
 #
 ##############################################################################
 #
@@ -55,7 +55,6 @@ showHelp() {
 	echo
 	echo 'Options:'
 	echo '  -H Show this screen and exit'
-	echo '  -c Do not clear the screen'
 	echo '  -h <str> Agent hostname'
 	echo '  -p <str> MySQL root password'
 	echo '  -w <int> Number of worker threads for the configured agent'
@@ -102,23 +101,20 @@ main() {
 OPT_FQDN=''
 OPT_WORKERS=''
 OPT_PASS=''
-CLEAR=1
-while getopts ':Hh:cp:w:' TMPOPT
+while getopts ':Hh:p:w:' TMPOPT
 do
 	case $TMPOPT in
-		\:) clear; title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
-		\?) clear; title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
+		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
+		\?) title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
 		H) showHelp; exit 0 ;;
-		c) CLEAR=0 ;;
 		h) OPT_FQDN=$OPTARG ;;
 		p) OPT_PASS=$OPTARG ;;
 		w) OPT_WORKERS=$OPTARG ;;
 	esac
 done
-[ -z "$OPT_FQDN" ] && { clear; title; showHelp "ERROR: Missing Agent hostname"; exit 1; } || AGENT_FQDN=$OPT_FQDN
-[ -z "$OPT_PASS" ] && { clear; title; showHelp "ERROR: Missing MySQL root Password"; exit 1; } || DB_PASS=$OPT_PASS
+[ -z "$OPT_FQDN" ] && { title; showHelp "ERROR: Missing Agent hostname"; exit 1; } || AGENT_FQDN=$OPT_FQDN
+[ -z "$OPT_PASS" ] && { title; showHelp "ERROR: Missing MySQL root Password"; exit 1; } || DB_PASS=$OPT_PASS
 
-[ $CLEAR -gt 0 ] && clear
 title
 main
 
