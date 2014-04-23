@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Apr 23 22:14:33 UTC 2014 - jrecord@suse.com
+
+- Added scadb results to find pattern results in the db
+
+-------------------------------------------------------------------
 Tue Apr 22 22:01:59 UTC 2014 - jrecord@suse.com
 
 - Added web password to setup-sdbroker and setup-sca (bnc#874632)
