@@ -5,18 +5,21 @@
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
+# Source developed at:
+#  https://github.com/g23guy/sca-appliance-broker
+#
 # norootforbuild
 # neededforbuild
 %define sca_common sca
 
 Name:         sca-appliance-broker
 Summary:      Supportconfig Analysis Appliance Broker
-URL:          https://bitbucket.org/g23guy/sca-appliance-broker
+URL:          https://github.com/g23guy/sca-appliance-broker
 Group:        System/Monitoring
 License:      GPL-2.0
 Autoreqprov:  on
 Version:      1.3
-Release:      26
+Release:      26.1
 Source:       %{name}-%{version}.tar.gz
 BuildRoot:    %{_tmppath}/%{name}-%{version}
 Buildarch:    noarch
