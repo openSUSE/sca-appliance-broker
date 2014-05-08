@@ -56,7 +56,7 @@ install -m 444 man/COPYING.GPLv2 $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_co
 install -m 644 config/*.conf $RPM_BUILD_ROOT/etc/%{sca_common}
 install -m 644 config/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 644 websca/index.html $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
-install -m 644 websca/* $RPM_BUILD_ROOT/srv/www/htdocs/%{sca_common}
+install -m 640 websca/* $RPM_BUILD_ROOT/srv/www/htdocs/%{sca_common}
 install -m 544 bin/* $RPM_BUILD_ROOT/usr/sbin
 install -m 644 schema/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}
 install -m 644 docs/* $RPM_BUILD_ROOT/usr/share/doc/packages/%{sca_common}

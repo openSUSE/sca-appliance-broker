@@ -82,7 +82,7 @@
 
 	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 	if ($Connection->connect_errno()) {
-		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database</P>\n";
+		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Index</P>\n";
 		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
 		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
 		echo "</BODY>\n</HTML>\n";
@@ -136,7 +136,6 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
-	include 'db-close.php';
 
 	if ( $num > 0 ) {
 		echo "[ Paging:&nbsp;&nbsp;";
@@ -215,7 +214,7 @@
 	echo "</TR>\n";
 
 	$i=0;
-	while ( $row_cell = $Connection->fetch_row() ) {
+	while ( $row_cell = $result->fetch_row() ) {
 		$ArchiveID = htmlspecialchars($row_cell[0]);
 		$ServerName = htmlspecialchars($row_cell[1]);
 		$ReportDate = htmlspecialchars($row_cell[2]);
