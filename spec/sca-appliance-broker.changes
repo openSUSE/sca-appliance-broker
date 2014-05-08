@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu May  8 20:34:00 UTC 2014 - jrecord@suse.com
+
+- Converted mysql PHP calls to mysqli (bnc#876918)
+
+-------------------------------------------------------------------
 Wed Apr 23 22:14:33 UTC 2014 - jrecord@suse.com
 
 - Added scadb results to find pattern results in the db
