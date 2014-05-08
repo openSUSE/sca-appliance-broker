@@ -1,10 +1,9 @@
 <?PHP include 'checklogin.php';?>
-
+<!-- Modified: Date       = 2014 May 07 -->
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
 <HEAD>
 <?PHP
-	include 'db-config.php';
+	include 'sca-config.php';
 	$DefaultTop = 30;
 	$DefaultRowStart = 0;
 	$DefaultArchiveType = 'a';
@@ -90,17 +89,23 @@
 	$ColorBlue = "#0000FF";
 
 	// Create Archives table
-	include 'db-open.php';
+	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+	if ($Connection->connect_errno()) {
+		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Detailed Archive Report</P>\n";
+		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
+		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
+		echo "</BODY>\n</HTML>\n";
+		die();
+	}
 	//echo "<!-- Query: Submitted          = $query -->\n";
-	$result=mysql_query($query);
-	$num=mysql_numrows($result);
+	$result = $Connection->query($query);
+	$num = $result->num_rows;
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
 		//echo "<!-- Query: Rows               = $num -->\n";
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
-	include 'db-close.php';
 
 	if ( $num > 0 ) {
 		echo "<P ALIGN=\"center\">[ ";
@@ -146,8 +151,8 @@
 	echo "<TH>Archive Message</TH>";
 	echo "</TR>\n";
 
-	for ( $i=0, $active_num=0; $i < $num; $i++ ) {
-		$row_cell = mysql_fetch_row($result);
+	$i=0;
+	while ( $row_cell = $result->fetch_row() ) {
 		$ArchiveID = htmlspecialchars($row_cell[0]);
 		$Filename = htmlspecialchars($row_cell[1]);
 		$ArchiveState = htmlspecialchars($row_cell[2]);
@@ -202,6 +207,8 @@
 		echo "<TD>$ArchiveMessage</TD>";
 		echo "</TR>\n";
 	}
+	$result->close();
+	$Connection->close();
 	echo "</TABLE>\n";
 
 	if ( $num > 0 ) {
