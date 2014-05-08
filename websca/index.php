@@ -1,7 +1,6 @@
 <?PHP include 'checklogin.php';?>
-
+<!-- Modified: Date       = 2014 May 07 -->
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 May 07 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
 <?PHP
