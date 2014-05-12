@@ -52,7 +52,7 @@
 	//echo "<!-- Query: Submitted     = $query -->\n";
 	$result = $Connection->query($query);
 	if ( $result ) {
-		$result->close();
+//		$result->close();
 		//echo "<!-- Query: Result        = Success -->\n";
 		$query = "DELETE FROM Archives WHERE ArchiveID=$ArchiveID";
 		//echo "<!-- Query: Submitted     = $query -->\n";

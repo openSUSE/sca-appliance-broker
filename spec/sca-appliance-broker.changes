@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Mon May 12 18:46:51 UTC 2014 - jrecord@suse.com
+Mon May 12 20:59:06 UTC 2014 - jrecord@suse.com
 
+- Converted reportfull.php to mysqli
 - Fixed connection errors
 - Converted mysql PHP calls to mysqli (bnc#876918)
 - Fixed build errors for common directory
