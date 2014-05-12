@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.18"
+SVER="1.0.19"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 DEFAULT_LIMIT=30
@@ -263,28 +263,28 @@ active)
 	echo "Most Recent Reports: Active"
 	LIMIT=$2
 	[[ -z "$LIMIT" ]] && LIMIT=$DEFAULT_LIMIT
-	FIELDS="Filename,ArchiveEvent,ArchiveState"
+	FIELDS="ArchiveID,Filename,ArchiveEvent,ArchiveState"
 	mysql $DB_CONNECT -e "SELECT $FIELDS FROM Archives WHERE ArchiveState='Downloading' OR ArchiveState='Extracting' OR ArchiveState='Identifying' OR ArchiveState='Analyzing' OR ArchiveState='Reporting' ORDER BY ArchiveState ASC, ArchiveEvent DESC LIMIT $LIMIT"
 	;;
 pending)
 	echo "Most Recent Reports: Pending"
 	LIMIT=$2
 	[[ -z "$LIMIT" ]] && LIMIT=$DEFAULT_LIMIT
-	FIELDS="Filename,ArchiveState,ArchiveMessage"
+	FIELDS="ArchiveID,Filename,ArchiveState,ArchiveMessage"
 	mysql $DB_CONNECT -e "SELECT $FIELDS FROM Archives WHERE ArchiveState='New' OR ArchiveState='Retry' OR ArchiveState='Assigned' ORDER BY ArchiveState DESC, ArchiveEvent DESC LIMIT $LIMIT"
 	;;
 done)
 	echo "Most Recent Reports: Done"
 	LIMIT=$2
 	[[ -z "$LIMIT" ]] && LIMIT=$DEFAULT_LIMIT
-	FIELDS="Filename,PatternsApplicable,PatternsTested,AnalysisTime"
+	FIELDS="ArchiveID,Filename,PatternsApplicable,PatternsTested,AnalysisTime"
 	mysql $DB_CONNECT -e "SELECT $FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ArchiveState ASC, ArchiveEvent DESC LIMIT $LIMIT"
 	;;
 error)
 	echo "Most Recent Reports: Error"
 	LIMIT=$2
 	[[ -z "$LIMIT" ]] && LIMIT=$DEFAULT_LIMIT
-	FIELDS="Filename,ArchiveMessage"
+	FIELDS="ArchiveID,Filename,ArchiveMessage"
 	mysql $DB_CONNECT -e "SELECT $FIELDS FROM Archives WHERE ArchiveState='Error' ORDER BY ArchiveState ASC, ArchiveEvent DESC LIMIT $LIMIT"
 	;;
 maint)
