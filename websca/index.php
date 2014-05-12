@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 May 08 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
 <HTML>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
@@ -69,7 +69,7 @@
 	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<BR>$Top Most Recent Reports</H1>\n";
 	echo "<P ALIGN=\"center\">[ ";
 	echo "<A HREF=\"opstate.php\" TARGET=\"opstate\">Operations</A> | ";
-	echo "<A HREF=\"../sdp\" TARGET=\"sdp\">Create Patterns</A> | ";
+	echo "<A HREF=\"sdp.html\" TARGET=\"sdp\">Create Patterns</A> | ";
 	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
 	echo "[ ";
 	echo "<A HREF=\"detailarch.php?atp=t&top=$Top&row=$rowStart\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
