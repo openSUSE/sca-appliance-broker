@@ -1,7 +1,11 @@
 -------------------------------------------------------------------
-Mon May 12 21:05:51 UTC 2014 - jrecord@suse.com
+Mon May 12 21:44:26 UTC 2014 - jrecord@suse.com
 
 - Added ArchiveID to scadb active,done,pending,error
+- Converted reportfull.php to mysqli
+- Fixed connection errors
+- Converted mysql PHP calls to mysqli (bnc#876918)
+- Fixed build errors for common directory
 
 -------------------------------------------------------------------
 Wed Apr 23 22:14:33 UTC 2014 - jrecord@suse.com

@@ -1,14 +1,10 @@
-
 <?PHP include 'checklogin.php';?>
-
-
+<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Operations</TITLE>
 <?PHP
-	ini_set('include_path', '/srv/www/htdocs/scdiag/');
-	include 'db-config.php';
+	include 'sca-config.php';
 	//echo "<!-- Query: Refresh Rate  = $StatsRefresh seconds -->\n";
 	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"$StatsRefresh;URL=opstate.php\">\n";
 ?>
@@ -17,10 +13,17 @@
 </HEAD>
 
 <?PHP
-	include 'db-open.php';
-	$query="SELECT ResultID FROM Results";
-	$result=mysql_query($query);
-	$CountResults=mysql_numrows($result);
+	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+	if ($Connection->connect_errno) {
+		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Operations</P>\n";
+		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
+		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
+		echo "</BODY>\n</HTML>\n";
+		die();
+	}
+	$query = "SELECT ResultID FROM Results";
+	$result = $Connection->query($query);
+	$CountResults = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -28,10 +31,11 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 
-	$query="SELECT ArchiveID FROM Archives";
-	$result=mysql_query($query);
-	$CountArchives=mysql_numrows($result);
+	$query = "SELECT ArchiveID FROM Archives";
+	$result = $Connection->query($query);
+	$CountArchives = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -39,10 +43,11 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 
-	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='New' OR ArchiveState='Retry' OR ArchiveState='Assigned'";
-	$result=mysql_query($query);
-	$CountNew=mysql_numrows($result);
+	$query = "SELECT ArchiveID FROM Archives WHERE ArchiveState='New' OR ArchiveState='Retry' OR ArchiveState='Assigned'";
+	$result = $Connection->query($query);
+	$CountNew = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -50,10 +55,11 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 
-	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Identifying' OR ArchiveState='Analyzing' OR ArchiveState='Extracting' OR ArchiveState='Downloading' OR ArchiveState='Reporting'";
-	$result=mysql_query($query);
-	$CountActive=mysql_numrows($result);
+	$query = "SELECT ArchiveID FROM Archives WHERE ArchiveState='Identifying' OR ArchiveState='Analyzing' OR ArchiveState='Extracting' OR ArchiveState='Downloading' OR ArchiveState='Reporting'";
+	$result = $Connection->query($query);
+	$CountActive = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -61,11 +67,11 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 
-
-	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Done'";
-	$result=mysql_query($query);
-	$CountDone=mysql_numrows($result);
+	$query = "SELECT ArchiveID FROM Archives WHERE ArchiveState='Done'";
+	$result = $Connection->query($query);
+	$CountDone = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -73,10 +79,11 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 
-	$query="SELECT ArchiveID FROM Archives WHERE ArchiveState='Error'";
-	$result=mysql_query($query);
-	$CountError=mysql_numrows($result);
+	$query = "SELECT ArchiveID FROM Archives WHERE ArchiveState='Error'";
+	$result = $Connection->query($query);
+	$CountError = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -84,9 +91,8 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
+	$result->close();
 	
-	include 'db-close.php';
-
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
 	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Operations</H1>\n";
 	echo "<P ALIGN=\"center\">[ ";
@@ -130,33 +136,30 @@
 	echo "<TH>Total Patterns</TH>";
 	echo "</TR>\n";
 
-	include 'db-open.php';
 	$query="SELECT AgentID,AgentState,AgentEvent,AgentMessage,Patterns,ThreadsActive,ThreadsMax,CPUCurrent,CPUMax,Hostname,ArchivesProcessed FROM Agents ORDER BY  AgentState,AgentPriority,Hostname ASC";
-	if ( isset($DEBUG) ) { echo "<FONT SIZE=\"-1\">Query: Submitted -> <B>$query</B></FONT><BR>\n"; }
-	$result=mysql_query($query);
-	$num=mysql_numrows($result);
+	$result = $Connection->query($query);
+	$num = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
-		//echo "<!-- Query: Rows               = $num -->\n";
+		//echo "<!-- Query: Error              = $num -->\n";
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
-	include 'db-close.php';
 
-	for ( $i=0, $active_num=0; $i < $num; $i++ ) {
-		$row_cell = mysql_fetch_row($result);
-		$AgentID = $row_cell[0];
-		$AgentState = $row_cell[1];
-		$AgentEvent = $row_cell[2];
-		$AgentMessage = $row_cell[3];
-		$Patterns = $row_cell[4];
-		$ThreadsActive = $row_cell[5];
-		$ThreadsMax = $row_cell[6];
-		$CPUCurrent = $row_cell[7];
-		$CPUMax = $row_cell[8];
-		$Hostname = $row_cell[9];
-		$Processed = $row_cell[10];
+	$i = 0;
+	while ( $row_cell = $result->fetch_row() ) {
+		$AgentID = htmlspecialchars($row_cell[0]);
+		$AgentState = htmlspecialchars($row_cell[1]);
+		$AgentEvent = htmlspecialchars($row_cell[2]);
+		$AgentMessage = htmlspecialchars($row_cell[3]);
+		$Patterns = htmlspecialchars($row_cell[4]);
+		$ThreadsActive = htmlspecialchars($row_cell[5]);
+		$ThreadsMax = htmlspecialchars($row_cell[6]);
+		$CPUCurrent = htmlspecialchars($row_cell[7]);
+		$CPUMax = htmlspecialchars($row_cell[8]);
+		$Hostname = htmlspecialchars($row_cell[9]);
+		$Processed = htmlspecialchars($row_cell[10]);
 
 		// Set row color
 		if ( $i%2 == 0 ) {
@@ -176,7 +179,11 @@
 		echo "<TD>$CPUCurrent%&nbsp;/&nbsp;$CPUMax%</TD>";
 		echo "<TD>$Patterns</TD>";
 		echo "</TR>\n";
+
+		$i++;
 	}
+	$result->close();
+	$Connection->close();
 	echo "</TABLE>\n";
 
 	// Create Archives table

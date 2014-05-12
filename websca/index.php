@@ -1,12 +1,10 @@
 <?PHP include 'checklogin.php';?>
-
+<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 28 -->\n"; ?>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
 <?PHP
-	ini_set('include_path', '/srv/www/htdocs/scdiag/');
-	include 'db-config.php';
+	include 'sca-config.php';
 	$DefaultTop = 30;
 	$DefaultRowStart = 0;
 	$DefaultSortType = 'r';
@@ -68,10 +66,10 @@
 <?PHP
 	echo "</HEAD>\n";
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
-	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<BR>$Top Most Recent Reports</H1>\n";
+	echo "\n<P CLASS=\"head_1\" ALIGN=\"center\">Supportconfig Analysis Appliance<BR><FONT SIZE=\"+2\">$Top Most Recent Reports</FONT></P>\n";
 	echo "<P ALIGN=\"center\">[ ";
 	echo "<A HREF=\"opstate.php\" TARGET=\"opstate\">Operations</A> | ";
-	echo "<A HREF=\"../sdp\" TARGET=\"sdp\">Create Patterns</A> | ";
+	echo "<A HREF=\"sdp.html\" TARGET=\"sdp\">Create Patterns</A> | ";
 	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
 	echo "[ ";
 	echo "<A HREF=\"detailarch.php?atp=t&top=$Top&row=$rowStart\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
@@ -81,7 +79,14 @@
 	echo "<A HREF=\"detailarch.php?atp=e&top=$Top&row=$rowStart\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A>";
 	echo " ]<BR>\n";
 
-	include 'db-open.php';
+	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+	if ($Connection->connect_errno) {
+		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Index</P>\n";
+		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
+		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
+		echo "</BODY>\n</HTML>\n";
+		die();
+	}
 	$DB_FIELDS='ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture,ArchiveDate,ArchiveTime';
 	switch ($sortType) {
 	case 's':
@@ -121,8 +126,8 @@
 		$query="SELECT $DB_FIELDS Archives WHERE ArchiveState='Done' ORDER BY PatternsSuccess DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	}
-	$result=mysql_query($query);
-	$num=mysql_numrows($result);
+	$result = $Connection->query($query);
+	$num = $result->num_rows;
 	//echo "<!-- Query: Submitted          = $query -->\n";
 	if ( $result ) {
 		//echo "<!-- Query: Result             = Success -->\n";
@@ -130,7 +135,6 @@
 	} else {
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
-	include 'db-close.php';
 
 	if ( $num > 0 ) {
 		echo "[ Paging:&nbsp;&nbsp;";
@@ -208,8 +212,8 @@
 	}
 	echo "</TR>\n";
 
-	for ( $i=0, $active_num=0; $i < $num; $i++ ) {
-		$row_cell = mysql_fetch_row($result);
+	$i=0;
+	while ( $row_cell = $result->fetch_row() ) {
 		$ArchiveID = htmlspecialchars($row_cell[0]);
 		$ServerName = htmlspecialchars($row_cell[1]);
 		$ReportDate = htmlspecialchars($row_cell[2]);
@@ -243,7 +247,11 @@
 		echo "<TD>$PatternsRecommended</TD>";
 		echo "<TD>$PatternsSuccess</TD>";
 		echo "</TR>\n";
+
+		$i++;
 	}
+	$result->close();
+	$Connection->close();
 	echo "</TABLE>\n";
 
 	if ( $num > 0 ) {

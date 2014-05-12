@@ -1,9 +1,9 @@
 <?PHP include 'checklogin.php';?>
+<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
 <HTML>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jan 22 -->\n"; ?>
 <HEAD>
 <?PHP
-	include 'db-config.php';
+	include 'sca-config.php';
 
 	$DefaultArchiveType = 'a';
 	$ArchiveType = $_GET['atp'];
@@ -39,16 +39,24 @@
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
 	echo "<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Delete Report</H1>\n";
 
-	include 'db-open.php';
+	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+	if ($Connection->connect_errno) {
+		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Delete Report</P>\n";
+		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
+		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
+		echo "</BODY>\n</HTML>\n";
+		die();
+	}
 
-	$query="DELETE FROM Results WHERE ResultsArchiveID=$ArchiveID";
+	$query = "DELETE FROM Results WHERE ResultsArchiveID=$ArchiveID";
 	//echo "<!-- Query: Submitted     = $query -->\n";
-	$result=mysql_query($query);
+	$result = $Connection->query($query);
 	if ( $result ) {
+//		$result->close();
 		//echo "<!-- Query: Result        = Success -->\n";
-		$query="DELETE FROM Archives WHERE ArchiveID=$ArchiveID";
+		$query = "DELETE FROM Archives WHERE ArchiveID=$ArchiveID";
 		//echo "<!-- Query: Submitted     = $query -->\n";
-		$result=mysql_query($query);
+		$result = $Connection->query($query);
 		if ( $result ) {
 			//echo "<!-- Query: Result        = Success -->\n";
 			echo "<H2 ALIGN=\"center\">Deleted ArchiveID $ArchiveID Report</H2>\n";
@@ -60,7 +68,8 @@
 		//echo "<!-- Query: Result        = FAILURE -->\n";
 		echo "<H2 ALIGN=\"center\">ERROR: Deleting ArchiveID $ArchiveID Report<br>Delete Manually</H2>\n";
 	}
-	include 'db-close.php';
+	$result->close();
+	$Connection->close();
 	echo "</BODY>\n";
 	echo "</HTML>\n";
 ?>
