@@ -66,7 +66,7 @@
 <?PHP
 	echo "</HEAD>\n";
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
-	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<BR>$Top Most Recent Reports</H1>\n";
+	echo "\n<P CLASS=\"head_1\" ALIGN=\"center\">Supportconfig Analysis Appliance<BR><FONT SIZE=\"+2\">$Top Most Recent Reports</FONT></P>\n";
 	echo "<P ALIGN=\"center\">[ ";
 	echo "<A HREF=\"opstate.php\" TARGET=\"opstate\">Operations</A> | ";
 	echo "<A HREF=\"sdp.html\" TARGET=\"sdp\">Create Patterns</A> | ";
@@ -80,7 +80,7 @@
 	echo " ]<BR>\n";
 
 	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-	if ($Connection->connect_errno()) {
+	if ($Connection->connect_errno) {
 		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Index</P>\n";
 		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
 		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";

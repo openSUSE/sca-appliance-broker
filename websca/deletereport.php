@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 May 08 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
 <HTML>
 <HEAD>
 <?PHP
@@ -40,7 +40,7 @@
 	echo "<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Delete Report</H1>\n";
 
 	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
-	if ($Connection->connect_errno()) {
+	if ($Connection->connect_errno) {
 		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Delete Report</P>\n";
 		echo "<H2 ALIGN=\"center\">Connect to Database: <FONT COLOR=\"red\">FAILED</FONT></H2>\n";
 		echo "<P ALIGN=\"center\">Make sure the MariaDB database is configured properly.</P>\n";
