@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.19"
+SVER="1.0.20"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 DEFAULT_LIMIT=30
@@ -233,7 +233,14 @@ archives)
 	;;
 report)
 	ARCHIVE_ID=$2
-	REPORT_BIN='/srv/www/htdocs/sca/reportfull.php'
+	REPORT_BIN='/usr/lib/sca/php/reportfull.php'
+	if [[ ! -e $REPORT_BIN ]]
+	then
+		echo "Error: Missing $REPORT_BIN"
+		echo "  Install the sca-appliance-agent package"
+		echo
+		exit
+	fi
 	if [[ -n "$ARCHIVE_ID" ]]; then
 		FILENAME=$(mysql $DB_CONNECT -NB -e "SELECT Filename FROM Archives WHERE ArchiveID=$ARCHIVE_ID")
 		if [[ -n "$FILENAME" ]]; then

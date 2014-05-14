@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed May 14 16:26:43 UTC 2014 - jrecord@suse.com
+
+- Check for reportfull.php before running
+
+-------------------------------------------------------------------
 Mon May 12 21:44:26 UTC 2014 - jrecord@suse.com
 
 - Added ArchiveID to scadb active,done,pending,error
