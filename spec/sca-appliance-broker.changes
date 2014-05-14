@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Wed May 14 16:26:43 UTC 2014 - jrecord@suse.com
+Wed May 14 18:59:09 UTC 2014 - jrecord@suse.com
 
+- Report checks web login (bnc#876347)
 - Check for reportfull.php before running
 
 -------------------------------------------------------------------

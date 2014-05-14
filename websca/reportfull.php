@@ -1,41 +1,31 @@
-<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
-<?PHP
-	if(isset($_SERVER['HTTP_USER_AGENT']))
-	{
-		include 'checklogin.php';
-	}
-?>
-
-<!DOCTYPE html>
-<HTML>
-<script>
-function showPattern(patternOutput,patternLocation)
-{
-alert(patternOutput + "\n\n" + "Pattern: " + patternLocation);
-}
-</script>
-<?PHP
+<?PHP //echo "<!-- Modified: Date       = 2014 May 14 -->\n";
+	$sver = '1.0.20br';
+	include 'checklogin.php';
 	ini_set('include_path', '/srv/www/htdocs/sca/');
 	include 'sca-config.php';
-	$sver = '1.0.20br';
-	if ( isset($argc) ) {
-		$givenArchiveID = $argv[1];
+	if ( isset($_GET) ) {
+		$givenArchiveID = $_GET['aid'];
 		if ( ! is_numeric($givenArchiveID) ) {
 			die("<FONT SIZE=\"-1\"><B>ERROR</B>: Invalid ArchiveID, Only numeric values allowed.</FONT><BR>");			
 		}
-		//echo "<!-- Parameters: CmdLine  = argc='$argc', argv[1]='$argv[1]' -->\n";
+		//echo "<!-- Parameters: GET      = _GET['aid']='$givenArchiveID' -->\n";
 	} else {
-		if ( isset($_GET) ) {
-			$givenArchiveID = $_GET['aid'];
-			if ( ! is_numeric($givenArchiveID) ) {
-				die("<FONT SIZE=\"-1\"><B>ERROR</B>: Invalid ArchiveID, Only numeric values allowed.</FONT><BR>");			
-			}
-			//echo "<!-- Parameters: GET      = _GET['aid']='$givenArchiveID' -->\n";
-		} else {
-			die("<FONT SIZE=\"-1\"><B>ERROR</B>: Missing ArchiveID and/or server name</FONT><BR>");
-		}
+		die("<FONT SIZE=\"-1\"><B>ERROR</B>: Missing ArchiveID and/or server name</FONT><BR>");
 	}
 	//echo "<!-- Parameters: Values   = givenArchiveID='$givenArchiveID' -->\n";
+
+/////////////////////
+// * COMMON CODE * //
+/////////////////////
+
+	echo "<!DOCTYPE html>\n";
+	echo "<HTML>\n";
+	echo "<script>\n";
+	echo "function showPattern(patternOutput,patternLocation)\n";
+	echo "{\n";
+	echo "alert(patternOutput + \"\n\n\" + \"Pattern: \" + patternLocation);\n";
+	echo "}\n";
+	echo "</script>\n";
 
 // * FUNCTIONS * //
 function loadRow()
@@ -346,8 +336,9 @@ function toggle(className)
 			printHeaderRow();
 			printRows();
 			echo "</TABLE>\n";
+			$Result->close();
 		} else {
-			echo "\n<!-- Patterns:            = $SeverityTag[$severity], $SeverityPatterns[$severity] -->\n";
+			//echo "\n<!-- Patterns:            = $SeverityTag[$severity], $SeverityPatterns[$severity] -->\n";
 			echo "\n<TABLE STYLE=\"border:3px solid black;border-collapse:collapse;\" WIDTH=\"100%\" CELLPADDING=\"2\">\n";
 			echo "<TR BGCOLOR=\"$ColorWhite\" STYLE=\"border:1px solid black;\" >";
 			echo "<TD BGCOLOR=\"$SeverityColor[$severity]\" WIDTH=\"$WidthSeverity\">&nbsp;</TD>";
@@ -356,7 +347,6 @@ function toggle(className)
 			echo "</TR>\n";
 			echo "</TABLE>\n";
 		}
-		$Result->close();
 	}
 	$Connection->close();
 

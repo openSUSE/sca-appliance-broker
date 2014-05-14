@@ -1,5 +1,5 @@
 #!/bin/bash
-SVER="1.0.20"
+SVER="1.0.21"
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 DEFAULT_LIMIT=30
@@ -234,6 +234,8 @@ archives)
 report)
 	ARCHIVE_ID=$2
 	REPORT_BIN='/usr/lib/sca/php/reportfull.php'
+	DB_HOSTNAME='localhost'
+	export DB_HOSTNAME DB_NAME DB_USER DB_PASS
 	if [[ ! -e $REPORT_BIN ]]
 	then
 		echo "Error: Missing $REPORT_BIN"
