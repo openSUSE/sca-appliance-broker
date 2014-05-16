@@ -28,6 +28,7 @@ SVER=1.0.16
 #     Jason Record (jrecord@suse.com)
 #
 ##############################################################################
+CURRENT_SCRIPT=$(basename $0)
 
 title() {
 	echo "####################################################################"
@@ -99,15 +100,24 @@ packageCheck()
 	for PACKAGE in $REQUIRED_PACKAGES
 	do
 		if ! rpm -q $PACKAGE &>/dev/null; then
-			MISSING_PACKAGES="$MISSING_PACKAGES $PACKAGE"
+			MISSING_PACKAGES="$PACKAGE $MISSING_PACKAGES"
 		fi
 	done
 	if [[ -n "$MISSING_PACKAGES" ]]; then
-		echo ERROR
-		echo "  Missing required packages"
-		echo "  Install these packages: $MISSING_PACKAGES"
-		echo "  Restart the apache2 daemon"; echo
-		exit 2
+		echo 'ERROR'
+		printf "$FMT1" "  Missing required packages:" "$MISSING_PACKAGES"
+		echo
+		FATAL_ERROR=1
+
+		printf "$FMT2" "Web Module"
+		if zypper ca 2>/dev/null | grep -i module-web-scripting &>/dev/null
+		then
+			echo 'Installed'
+			WEB_MODULE=1
+		else
+			echo 'Not Installed'
+			echo; echo "  Install the Web and Scripting Module repository"; echo
+		fi
 	else
 		echo Installed
 	fi
@@ -183,22 +193,10 @@ checkDaemons()
 
 phpCheck()
 {
-	printf "$FMT2" "Web Module"
-	WEB_MODULE=0
-	if zypper ca 2>/dev/null | grep -i module-web-scripting &>/dev/null
+	printf "$FMT2" "PHP Apache Module"
+	ACONF="/etc/sysconfig/apache2"
+	if [[ -s $ACONF ]]
 	then
-		echo 'Installed'
-		WEB_MODULE=1
-	else
-		echo 'Not Installed'
-		echo; echo "  Install the Web and Scripting Module repository for PHP packages"; echo
-		FATAL_ERROR=1
-	fi
-
-	if (( WEB_MODULE ))
-	then
-		printf "$FMT2" "PHP Apache Module"
-		ACONF="/etc/sysconfig/apache2"
 		if grep '^APACHE_MODULES=' $ACONF | grep 'php5' &>/dev/null
 		then
 			echo 'Installed'
@@ -209,6 +207,9 @@ phpCheck()
 			echo 'Configured'
 			echo; echo "  Run: systemctl restart apache2.service"; echo
 		fi
+	else
+		echo "File Not Found"
+		FATAL_ERROR=1
 	fi
 }
 
@@ -318,6 +319,13 @@ cleanUp()
 	echo
 }
 
+restartMsg()
+{
+	echo "Correct the errors"
+	echo "  Run: $CURRENT_SCRIPT again"
+	echo
+}
+
 ############################################################################
 # variables
 ############################################################################
@@ -357,25 +365,24 @@ done
 ############################################################################
 title
 serverAccess
+phpCheck
 packageCheck
 printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
 printf "$FMT1" "Administrator Email" "$EMAIL_USER_SCA"
 if (( DAEMON_CHECK )); then
 	checkDaemons
-	phpCheck
 	checkDatabaseAccess
 else
 	printf "$FMT1" "Apache Daemon" "Not Checked"
 	printf "$FMT1" "MySQL Daemon" "Not Checked"
-	printf "$FMT1" "PHP Status" "Not Checked"
 fi
-(( FATAL_ERROR )) && { cleanUp; exit 2; }
+(( FATAL_ERROR )) && { cleanUp; restartMsg; exit 2; }
 (( INSTALL_SDP_CONFIRMED )) && installSDP
 if echo "$DATABASES" | grep ServerDiagnostics &>/dev/null; then
 	printf "$FMT1" "SCA Database" "Already Installed"
 	FATAL_ERROR=1
 fi
-(( FATAL_ERROR )) && { cleanUp; exit 4; }
+(( FATAL_ERROR )) && { cleanUp; restartMsg; exit 4; }
 setupBroker
 setupAgent
 configureAgent
