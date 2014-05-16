@@ -1,6 +1,8 @@
 -------------------------------------------------------------------
-Wed May 14 20:01:34 UTC 2014 - jrecord@suse.com
+Fri May 16 21:40:55 UTC 2014 - jrecord@suse.com
 
+- Added web module checks to setup-sca
+- setup-sca now checks for PHP modules (bnc#877402)
 - SDP database reference updated (bnc#876919)
 - Report checks web login (bnc#876347)
 - Check for reportfull.php before running
