@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.18
+SVER=1.0.19
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.18
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 May 16
+# Modified:     2014 May 19
 #
 ##############################################################################
 #
@@ -149,6 +149,23 @@ checkDaemons()
 						echo "Apache PHP Module May Not Be Loaded"
 						echo "  Run: systemctl restart apache2.service"
 						echo
+					fi
+					if [[ -s /var/run/httpd.pid ]]
+					then
+						HTTPD_PID=$(cat /var/run/httpd.pid)
+					else
+						HTTPD_PID=$(ps -eaf | grep sbin/httpd | sort -nk3 | head -1 | awk '{print $2}')
+					fi
+					if [[ -n "$HTTPD_PID" ]]
+					then
+						LOADED=$(lsof -p $HTTPD_PID | grep 'mysqli.so')
+						if [[ -z "$LOADED" ]]
+						then
+							echo
+							echo "Apache MySQL Libraries Not Loaded"
+							echo "  Run: systemctl restart apache2.service"
+							echo
+						fi
 					fi
 				else
 					echo "ERROR: $SUB_STATE"

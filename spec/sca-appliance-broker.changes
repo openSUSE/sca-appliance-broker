@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon May 19 18:18:42 UTC 2014 - jrecord@suse.com
+
+- Checks for mysqli library with setup-sca
+
+-------------------------------------------------------------------
 Fri May 16 21:40:55 UTC 2014 - jrecord@suse.com
 
 - Added web module checks to setup-sca
