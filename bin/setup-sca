@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.19
+SVER=1.0.20
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.19
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 May 19
+# Modified:     2014 May 23
 #
 ##############################################################################
 #
@@ -54,6 +54,25 @@ showHelp() {
 	echo "  -s <server_name> Override the server hostname"
 	echo "  -f Change to FTP archive source file:///srv/ftp/upload (Default: $ARCHIVE_LOCATION)"
 	echo '  -y Confirms the deletion of a pre-existing database and users'
+	echo
+}
+
+showUsage() {
+	echo
+	SERVER=$(hostname -f)
+	[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
+	echo "To analyze supportconfigs, do the following:"
+	echo " 1. Login as root on the SUSE server to be analyzed"
+	case $ARCHIVE_LOCATION in
+	*tmp*)
+		echo " 2. Run: supportconfig -U \"scp://${SERVER}/tmp\""
+		;;
+	*ftp*)
+		echo " 2. Run: supportconfig -U \"ftp://${SERVER}/upload/\""
+		echo "    -or-"
+		echo "    Run: supportconfig -U \"scp://${SERVER}/tmp/\""
+		;;
+	esac
 	echo
 }
 
@@ -424,6 +443,7 @@ setupBroker
 setupAgent
 configureAgent
 configureCron
+showUsage
 cleanUp
 
 
