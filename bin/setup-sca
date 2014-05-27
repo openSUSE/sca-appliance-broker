@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.20
+SVER=1.0.21
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.20
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 May 23
+# Modified:     2014 May 27
 #
 ##############################################################################
 #
@@ -39,7 +39,14 @@ title() {
 
 showHelp() {
 	[ -n "$1" ] && { echo "$1"; echo; }
-	echo "Usage: $CURRENT_SCRIPT [OPTIONS]"
+	echo "Usage: $CURRENT_SCRIPT [OPTIONS] Run the following command from each server you want analyzed:
+
+ supportconfig -U 'ftp://151.155.233.40/upload/'
+
+ To view the analysis reports, goto the URL:
+
+ https://151.155.233.40/
+"
 	echo
 	echo 'Description:'
 	echo '  Configures the MySQL administration and report database used by'
@@ -65,14 +72,27 @@ showUsage() {
 	echo " 1. Login as root on the SUSE server to be analyzed"
 	case $ARCHIVE_LOCATION in
 	*tmp*)
-		echo " 2. Run: supportconfig -U \"scp://${SERVER}/tmp\""
+		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
+		echo "    to the appliance."
+		echo " 3. Examples include:"
+		echo
+		echo "    supportconfig -U \"scp://${SERVER}/tmp\""
+		echo "    scp /path/to/local/nts_<supportconifg_file>.tbz ${SERVER}:/tmp"
 		;;
 	*ftp*)
-		echo " 2. Run: supportconfig -U \"ftp://${SERVER}/upload/\""
-		echo "    -or-"
-		echo "    Run: supportconfig -U \"scp://${SERVER}/tmp/\""
+		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
+		echo "    to the appliance."
+		echo " 3. Examples include:"
+		echo
+		echo "    supportconfig -U \"ftp://${SERVER}/upload/\""
+		echo "    supportconfig -U \"scp://${SERVER}/srv/ftp/upload/\""
+		echo "    ftp -u \"${SERVER}:/upload/nts_<supportconig_file>.tbz\" /path/to/local/nts_<supportconfig_file>.tbz"
 		;;
 	esac
+	echo
+	echo "To view the analysis reports, goto the URL:"
+	echo
+	echo " http://${SERVER}/sca/"
 	echo
 }
 
@@ -151,6 +171,7 @@ checkDaemons()
 			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
 				SUB_STATE=$(systemctl show --system --no-pager -p SubState apache2.service | cut -d= -f2)
 				if echo $SUB_STATE | grep -i running &>/dev/null; then
+					RESTART_APACHE=0
 					echo "Active"
 					APACHECTL_BIN="/usr/sbin/apache2ctl"
 					if [[ -x $APACHECTL_BIN ]]
@@ -160,14 +181,12 @@ checkDaemons()
 						then
 							echo
 							echo "Apache PHP Module Not Loaded"
-							echo "  Run: systemctl restart apache2.service"
-							echo
+							RESTART_APACHE=1
 						fi
 					else
 						echo
 						echo "Apache PHP Module May Not Be Loaded"
-						echo "  Run: systemctl restart apache2.service"
-						echo
+						RESTART_APACHE=1
 					fi
 					if [[ -s /var/run/httpd.pid ]]
 					then
@@ -182,9 +201,14 @@ checkDaemons()
 						then
 							echo
 							echo "Apache MySQL Libraries Not Loaded"
-							echo "  Run: systemctl restart apache2.service"
-							echo
+							RESTART_APACHE=1
 						fi
+					fi
+					if (( RESTART_APACHE ))
+					then
+						echo
+						echo "  Run: systemctl restart apache2.service"
+						echo
 					fi
 				else
 					echo "ERROR: $SUB_STATE"
@@ -436,6 +460,7 @@ fi
 (( INSTALL_SDP_CONFIRMED )) && installSDP
 if echo "$DATABASES" | grep ServerDiagnostics &>/dev/null; then
 	printf "$FMT1" "SCA Appliance Database" "Already Installed"
+	showUsage
 	FATAL_ERROR=1
 fi
 (( FATAL_ERROR )) && { cleanUp; exit 4; }
