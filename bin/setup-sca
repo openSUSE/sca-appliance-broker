@@ -295,8 +295,8 @@ checkFTP()
 {
 	printf "$FMT2" "FTP Server"
 	if rpm -q systemd &>/dev/null; then
+		SERVICE_NAME='vsftpd.service'
 		if rpm --quiet -q vsftpd &>/dev/null; then
-			SERVICE_NAME='vsftpd.service'
 			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState $SERVICE_NAME | cut -d= -f2)
 			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
 				SUB_STATE=$(systemctl show --system --no-pager -p SubState $SERVICE_NAME | cut -d= -f2)
@@ -331,7 +331,8 @@ checkFTP()
 			echo "  Run: zypper install vsftpd"
 			echo "  Run: systemctl enable $SERVICE_NAME"
 			echo "  Run: systemctl start $SERVICE_NAME"
-			echo "  Run: yast ftp-server, Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
+			echo "  Run: yast ftp-server"
+			echo "       Select: Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
 			echo
 			FATAL_ERROR=1
 		fi
