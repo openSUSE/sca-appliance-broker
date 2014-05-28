@@ -29,6 +29,7 @@ SVER=1.0.22
 #
 ##############################################################################
 CURRENT_SCRIPT=$(basename $0)
+CURRENT_ARGS="$*"
 
 title() {
 	echo "####################################################################"
@@ -457,7 +458,7 @@ cleanUp()
 restartMsg()
 {
 	echo "Correct the errors"
-	echo "  Run: $CURRENT_SCRIPT again"
+	echo "  Repeat: $CURRENT_SCRIPT $CURRENT_ARGS"
 	echo
 }
 
