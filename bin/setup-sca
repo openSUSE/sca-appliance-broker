@@ -167,7 +167,7 @@ packageCheck()
 
 checkDaemons()
 {
-	printf "$FMT2" "Apache Daemon"
+	printf "$FMT2" "Apache Server"
 	if rpm -q systemd &>/dev/null; then
 		if rpm -q apache2 &>/dev/null; then
 			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState apache2.service | cut -d= -f2)
@@ -236,7 +236,7 @@ checkDaemons()
 	fi
 
 	DAEMON_BIN="/etc/init.d/mysql"
-	printf "$FMT2" "MySQL Daemon"
+	printf "$FMT2" "MySQL Server"
 	if rpm -q mariadb &>/dev/null; then
 		if chkconfig mysql 2>/dev/null | grep on &>/dev/null; then
 			$DAEMON_BIN status | grep running &>/dev/null
@@ -507,13 +507,13 @@ packageCheck
 printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
 printf "$FMT1" "Administrator Email" "$EMAIL_USER_SCA"
 if (( DAEMON_CHECK )); then
-	checkDaemons
 	(( FTP_INSTALL )) && checkFTP
+	checkDaemons
 	checkDatabaseAccess
 else
-	printf "$FMT1" "Apache Daemon" "Not Checked"
-	printf "$FMT1" "MySQL Daemon" "Not Checked"
-	(( FTP_INSTALL )) && printf "$FMT1" "FTP Daemon" "Not Checked"
+	(( FTP_INSTALL )) && printf "$FMT1" "FTP Server" "Not Checked"
+	printf "$FMT1" "Apache Server" "Not Checked"
+	printf "$FMT1" "MySQL Server" "Not Checked"
 fi
 (( FATAL_ERROR )) && { cleanUp; restartMsg; exit 2; }
 (( INSTALL_SDP_CONFIRMED )) && installSDP
