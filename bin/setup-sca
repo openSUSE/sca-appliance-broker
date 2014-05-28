@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.22
+SVER=1.0.23
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -71,18 +71,10 @@ showUsage() {
 	[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
 	echo "SCA Appliance Server Configuration Complete"
 	echo
-	echo "To analyze supportconfigs, do the following:"
+	echo "To analyze supportconfigs:"
 	echo " 1. Login as root on the SUSE server to be analyzed"
-	case $ARCHIVE_LOCATION in
-	*tmp*)
-		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
-		echo "    to the appliance."
-		echo " 3. Examples include:"
-		echo
-		echo "    supportconfig -U \"scp://${SERVER}/tmp\""
-		echo "    scp /path/to/local/nts_<supportconifg_file>.tbz ${SERVER}:/tmp"
-		;;
-	*ftp*)
+	if (( FTP_INSTALL ))
+	then
 		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
 		echo "    to the appliance."
 		echo " 3. Examples include:"
@@ -90,8 +82,14 @@ showUsage() {
 		echo "    supportconfig -U \"ftp://${SERVER}/upload/\""
 		echo "    supportconfig -U \"scp://${SERVER}/srv/ftp/upload/\""
 		echo "    ftp -u \"${SERVER}:/upload/nts_<supportconig_file>.tbz\" /path/to/local/nts_<supportconfig_file>.tbz"
-		;;
-	esac
+	else
+		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
+		echo "    to the appliance."
+		echo " 3. Examples include:"
+		echo
+		echo "    supportconfig -U \"scp://${SERVER}/tmp\""
+		echo "    scp /path/to/local/nts_<supportconifg_file>.tbz ${SERVER}:/tmp"
+	fi
 	echo
 	echo "To view the analysis reports, goto the URL:"
 	echo
