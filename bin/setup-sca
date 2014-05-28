@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.21
+SVER=1.0.22
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.21
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 May 27
+# Modified:     2014 May 28
 #
 ##############################################################################
 #
@@ -68,6 +68,8 @@ showUsage() {
 	echo
 	SERVER=$(hostname -f)
 	[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
+	echo "SCA Appliance Server Configuration Complete"
+	echo
 	echo "To analyze supportconfigs, do the following:"
 	echo " 1. Login as root on the SUSE server to be analyzed"
 	case $ARCHIVE_LOCATION in
@@ -289,6 +291,57 @@ phpCheck()
 	fi
 }
 
+checkFTP()
+{
+	printf "$FMT2" "FTP Server"
+	if rpm -q systemd &>/dev/null; then
+		if rpm --quiet -q vsftpd &>/dev/null; then
+			SERVICE_NAME='vsftpd.service'
+			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState $SERVICE_NAME | cut -d= -f2)
+			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
+				SUB_STATE=$(systemctl show --system --no-pager -p SubState $SERVICE_NAME | cut -d= -f2)
+				if echo $SUB_STATE | grep -i running &>/dev/null; then
+					CONFIG_FILE='/etc/vsftpd.conf'
+					echo "Active"
+					if [[ -s $CONFIG_FILE ]]
+					then
+						FTP_CONFIG=$(egrep -i "^write_enable=yes|^anon_upload_enable=yes|^anonymous_enable=yes|^anon_root=/srv/ftp$" $CONFIG_FILE | wc -l)
+						if (( FTP_CONFIG != 4 ))
+						then
+							echo
+							echo "Anonymous FTP Server not Configured"; echo
+							echo "  Run: yast ftp-server, Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
+							echo
+							FATAL_ERROR=1
+						fi
+					fi
+				else
+					echo "ERROR: $SUB_STATE"
+					echo; echo "  Run: systemctl start $SERVICE_NAME"; echo
+					FATAL_ERROR=1
+				fi
+			else
+				echo "ERROR: Disabled"; echo
+				echo "  Run: systemctl enable $SERVICE_NAME"
+				echo "  Run: systemctl start $SERVICE_NAME"; echo
+				FATAL_ERROR=1
+			fi
+		else
+			echo "ERROR: Not Installed"; echo
+			echo "  Run: zypper install vsftpd"
+			echo "  Run: systemctl enable $SERVICE_NAME"
+			echo "  Run: systemctl start $SERVICE_NAME"
+			echo "  Run: yast ftp-server, Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
+			echo
+			FATAL_ERROR=1
+		fi
+	else
+		echo "ERROR: Missing SystemD"
+		echo; echo "  Manual configuration required"; echo
+		FATAL_ERROR=1
+	fi
+}
+
 checkDatabaseAccess()
 {
 	printf "$FMT2" "MySQL Database Access"
@@ -420,6 +473,7 @@ USE_HOSTNAME=''
 DAEMON_CHECK=1
 FATAL_ERROR=0
 INSTALL_SDP_CONFIRMED=0
+FTP_INSTALL=0
 
 ############################################################################
 # main
@@ -435,7 +489,7 @@ do
 		w) PASS_WEB_USER=$OPTARG ;;
 		s) USE_HOSTNAME=$OPTARG ;;
 		e) EMAIL_USER_SCA=$OPTARG ;;
-		f) ARCHIVE_LOCATION="file:///srv/ftp/upload" ;;
+		f) FTP_INSTALL=1; ARCHIVE_LOCATION="file:///srv/ftp/upload" ;;
 		y) CONFIRMED='-y' ;;
 	esac
 done
@@ -451,10 +505,12 @@ printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
 printf "$FMT1" "Administrator Email" "$EMAIL_USER_SCA"
 if (( DAEMON_CHECK )); then
 	checkDaemons
+	(( FTP_INSTALL )) && checkFTP
 	checkDatabaseAccess
 else
 	printf "$FMT1" "Apache Daemon" "Not Checked"
 	printf "$FMT1" "MySQL Daemon" "Not Checked"
+	(( FTP_INSTALL )) && printf "$FMT1" "FTP Daemon" "Not Checked"
 fi
 (( FATAL_ERROR )) && { cleanUp; restartMsg; exit 2; }
 (( INSTALL_SDP_CONFIRMED )) && installSDP
