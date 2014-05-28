@@ -310,7 +310,8 @@ checkFTP()
 						then
 							echo
 							echo "Anonymous FTP Server not Configured"; echo
-							echo "  Run: yast ftp-server, Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
+							echo "  Run: yast ftp-server"
+							echo "       Select: Authentication, Enable Upload, Anonymous Can Upload, Finish, Yes"
 							echo
 							FATAL_ERROR=1
 						fi
