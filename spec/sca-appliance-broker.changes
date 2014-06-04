@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jun  4 22:33:29 UTC 2014 - jrecord@suse.com
+
+- Fixed pattern source links
+
+-------------------------------------------------------------------
 Wed May 28 22:31:53 UTC 2014 - jrecord@suse.com
 
 - Fixed FTP server validation (bnc#879714)
