@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 May 14 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 Jun 06 -->\n"; ?>
 <HTML>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
@@ -8,6 +8,8 @@
 	$DefaultTop = 30;
 	$DefaultRowStart = 0;
 	$DefaultSortType = 'r';
+	$DefaultViewType = 'n';
+	$viewType = $_GET['vt'];
 	$Top = $_GET['top'];
 	$rowStart = $_GET['row'];
 	$sortType = $_GET['st'];
@@ -22,6 +24,15 @@
 	} else { 
 		$rowStart = $DefaultRowStart;
 	}
+	switch ($viewType) {
+	case 'n':
+	case 's':
+	case 'o':
+		break;
+	default:
+		$viewType = $DefaultViewType;
+		break;
+	}
 	switch ($sortType) {
 	case 's':
 	case 'r':
@@ -31,6 +42,8 @@
 	case 'c':
 	case 'w':
 	case 'm':
+	case 'n':
+	case 'o':
 	case 'g':
 		break;
 	default:
@@ -45,7 +58,7 @@
 	//echo "<!-- Variable: rowPrev         = $rowPrev -->\n";
 	//echo "<!-- Variable: sortType        = $sortType -->\n";
 	//echo "<!-- Variable: Top             = $Top -->\n";
-	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"$StatsRefresh;URL=index.php?top=$Top&row=$rowStart&st=$sortType\">\n";
+	echo "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"$StatsRefresh;URL=index.php?top=$Top&row=$rowStart&st=$sortType&vt=$viewType\">\n";
 
 	$ColorRed = "#FF0000";
 	$ColorYellow = "#FFFF00";
@@ -77,6 +90,22 @@
 	echo "<A HREF=\"detailarch.php?atp=a&top=$Top&row=$rowStart\" TARGET=\"active\" TITLE=\"Detailed Active Report\">Active</A>, ";
 	echo "<A HREF=\"detailarch.php?atp=d&top=$Top&row=$rowStart\" TARGET=\"done\" TITLE=\"Detailed Done Report\">Done</A>, ";
 	echo "<A HREF=\"detailarch.php?atp=e&top=$Top&row=$rowStart\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A>";
+	echo " | Views: ";
+	if ( $viewType == 'n' ) {
+		echo "Normal, ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=r&vt=n\">Normal</A>, ";
+	}
+	if ( $viewType == 'o' ) {
+		echo "OES, ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=o&vt=o\">OES</A>, ";
+	}
+	if ( $viewType == 's' ) {
+		echo "SR ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=n&vt=s\">SR</A> ";
+	}
 	echo " ]<BR>\n";
 
 	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
@@ -87,7 +116,7 @@
 		echo "</BODY>\n</HTML>\n";
 		die();
 	}
-	$DB_FIELDS='ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture,ArchiveDate,ArchiveTime';
+	$DB_FIELDS='ArchiveID,ServerName,ReportDate,ReportTime,PatternsCritical,PatternsWarning,PatternsRecommended,PatternsSuccess,Distro,DistroSP,Architecture,ArchiveDate,ArchiveTime,SRNum,OESDistro,OESDistroSP';
 	switch ($sortType) {
 	case 's':
 		//echo "<!-- Sorting by:          = Server -->\n";
@@ -98,12 +127,16 @@
 		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ReportDate DESC, ReportTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 't':
-		//echo "<!-- Sorting by:          = Report Date -->\n";
+		//echo "<!-- Sorting by:          = Supportconfig Date -->\n";
 		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY ArchiveDate DESC, ArchiveTime DESC, ServerName ASC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'd':
 		//echo "<!-- Sorting by:          = Distribution -->\n";
 		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY Distro ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
+		break;
+	case 'o':
+		//echo "<!-- Sorting by:          = OES -->\n";
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY OESDistro DESC, OESDistroSP DESC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'a':
 		//echo "<!-- Sorting by:          = Architecture -->\n";
@@ -120,6 +153,10 @@
 	case 'm':
 		//echo "<!-- Sorting by:          = Recommended -->\n";
 		$query="SELECT $DB_FIELDS Archives WHERE ArchiveState='Done' ORDER BY PatternsRecommended DESC, ServerName ASC, ReportDate DESC, ReportTime DESC LIMIT " . $rowStart . "," . $Top;
+		break;
+	case 'n':
+		//echo "<!-- Sorting by:          = SR Number -->\n";
+		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY SRNum DESC, ArchiveDate DESC, ArchiveTime DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'g':
 		//echo "<!-- Sorting by:          = Success -->\n";
@@ -168,47 +205,61 @@
 	if ( $sortType == 's' ) {	
 		echo "<TH WIDTH=\"15%\">Server Name</TH>";
 	} else {
-		echo "<TH WIDTH=\"15%\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=s\">Server Name</A></TH>";
+		echo "<TH WIDTH=\"15%\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=s\">Server Name</A></TH>";
+	}
+	if ( $viewType == 's' ) {
+		if ( $sortType == 'n' ) {	
+			echo "<TH>SR#</TH>";
+		} else {
+			echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=n\">SR#</A></TH>";
+		}
 	}
 	if ( $sortType == 'r' ) {	
 		echo "<TH>Report Date</TH>";
 	} else {
-		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&st=r\">Report Date</A></TH>";
+		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=r\">Report Date</A></TH>";
 	}
 	if ( $sortType == 't' ) {	
 		echo "<TH>Supportconfig Date</TH>";
 	} else {
-		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&st=t\">Supportconfig Date</A></TH>";
+		echo "<TH><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=t\">Supportconfig Date</A></TH>";
 	}
 	if ( $sortType == 'd' ) {	
 		echo "<TH ALIGN=\"left\">Distribution</TH>";
 	} else {
-		echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=d\">Distribution</A></TH>";
+		echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=d\">Distribution</A></TH>";
+	}
+	if ( $viewType == 'o' ) {
+		if ( $sortType == 'o' ) {	
+			echo "<TH ALIGN=\"left\">OES Distribution</TH>";
+		} else {
+			echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=o\">OES Distribution</A></TH>";
+		}
 	}
 	if ( $sortType == 'a' ) {
 		echo "<TH ALIGN=\"left\">Arch</TH>";
 	} else {
-		echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=a\">Arch</A></TH>";
+		echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=a\">Arch</A></TH>";
 	}
 	if ( $sortType == 'c' ) {
 		echo "<TH WIDTH=\"5%\">Critical</TH>";
 	} else {
-		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=c\">Critical</A></TH>";
+		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=c\">Critical</A></TH>";
 	}
 	if ( $sortType == 'w' ) {
 		echo "<TH WIDTH=\"5%\">Warning</TH>";
 	} else {
-		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=w\">Warning</A></TH>";
+		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=w\">Warning</A></TH>";
 	}
 	if ( $sortType == 'm' ) {
 		echo "<TH WIDTH=\"5%\">Recommended</TH>";
 	} else {
-		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=m\">Recommended</A></TH>";
+		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=m\">Recommended</A></TH>";
 	}
 	if ( $sortType == 'g' ) {
 		echo "<TH WIDTH=\"5%\">Success</TH>";
 	} else {
-		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&st=g\">Success</A></TH>";
+		echo "<TH WIDTH=\"5%\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=g\">Success</A></TH>";
 	}
 	echo "</TR>\n";
 
@@ -227,6 +278,9 @@
 		$Architecture = htmlspecialchars($row_cell[10]);
 		$ArchiveDate = htmlspecialchars($row_cell[11]);
 		$ArchiveTime = htmlspecialchars($row_cell[12]);
+		$SRNum = htmlspecialchars($row_cell[13]);
+		$OESDistro = htmlspecialchars($row_cell[14]);
+		$OESDistroSP = htmlspecialchars($row_cell[15]);
 
 		// Set row color
 		if ( $i%2 == 0 ) {
@@ -238,9 +292,23 @@
 		//Create table rows with data
 		echo "<TR ALIGN=\"left\" CLASS=\"$row_color\">";
 		echo "<TD>$ServerName</TD>";
+		if ( $viewType == 's' ) {
+			if ( $SRNum > 0 ) {
+				echo "<TD>$SRNum</TD>";
+			} else {
+				echo "<TD></TD>";
+			}
+		}
 		echo "<TD><A HREF=\"reportfull.php?aid=$ArchiveID\" TARGET=\"$ServerName\" TITLE=\"SCA Report for $ServerName\">$ReportDate $ReportTime</A></TD>";
 		echo "<TD>$ArchiveDate $ArchiveTime</TD>";
 		echo "<TD>$Distro SP$DistroSP</TD>";
+		if ( $viewType == 'o' ) {
+			if ( strlen($OESDistro) > 0 ) {
+				echo "<TD>$OESDistro SP$OESDistroSP</TD>";
+			} else {
+				echo "<TD></TD>";
+			}
+		}
 		echo "<TD>$Architecture</TD>";
 		echo "<TD>$PatternsCritical</TD>";
 		echo "<TD>$PatternsWarning</TD>";
