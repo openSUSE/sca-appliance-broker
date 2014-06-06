@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jun  6 20:54:44 UTC 2014 - jrecord@suse.com
+
+- Added SR and OES views to index.php (bnc#881000)
+
+-------------------------------------------------------------------
 Wed Jun  4 22:33:29 UTC 2014 - jrecord@suse.com
 
 - Fixed pattern source links
