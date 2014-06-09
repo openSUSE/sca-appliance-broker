@@ -73,7 +73,7 @@
 	echo "<TITLE>SCA Archives $archiveString</TITLE>\n";
 	echo "</HEAD>\n";
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
-	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Archive Details: $archiveString</H1>\n";
+	echo "\n<P CLASS=\"head_1\" ALIGN=\"center\">Supportconfig Analysis Appliance<BR><FONT SIZE=\"+2\">Archive Details: $archiveString</FONT></P>\n";
 
 	$ColorRed = "#FF0000";
 	$ColorYellow = "#FFFF00";
@@ -107,8 +107,15 @@
 		//echo "<!-- Query: Results            = FAILURE -->\n";
 	}
 
+	echo "<P ALIGN=\"center\">[ ";
+	echo "<A HREF=\"index.php\">Reports</A> | ";
+	echo "<A HREF=\"opstate.php\">Operations</A> | ";
+	echo "<A HREF=\"patterns.php\">Create Patterns</A> | ";
+	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ";
+	echo "]<BR>\n";
+
 	if ( $num > 0 ) {
-		echo "<P ALIGN=\"center\">[ ";
+		echo "[ ";
 		echo "Paging:&nbsp;&nbsp;";
 		if ( $rowStart > 0 ) {
 			echo "<A HREF=\"detailarch.php?atp=$archiveType&top=$Top&row=$rowPrev\" ALT=\"Previous\">Prev</A>&nbsp;&nbsp;";
@@ -133,7 +140,7 @@
 		if ( $Top == 100 ) { echo "100, "; } else { echo "<A HREF=\"detailarch.php?atp=$archiveType&top=100&row=$rowStart\">100</A>"; }
 		echo " ]</P>\n";
 	} else {
-		echo "<P ALIGN=\"center\">[ Paging:  Prev  Next  Top  | List Top 10, 20, 30, 50, 100 ]</P>\n";
+		echo "[ Paging:  Prev  Next  Top  | List Top 10, 20, 30, 50, 100 ]</P>\n";
 	}
 
 	echo "\n<TABLE ALIGN=\"center\" WIDTH=100% CELLPADDING=2>\n";

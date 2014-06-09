@@ -94,11 +94,13 @@
 	$result->close();
 	
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
-	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Operations</H1>\n";
+	echo "\n<P CLASS=\"head_1\" ALIGN=\"center\">Supportconfig Analysis Appliance<BR><FONT SIZE=\"+2\">Operations</FONT></P>\n";
 	echo "<P ALIGN=\"center\">[ ";
-//	echo "<A HREF=\"index.php\" TARGET=\"reports\">Reports</A> | ";
 	echo "<A HREF=\"index.php\">Reports</A> | ";
-	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
+	echo "<B>Operations</B> | ";
+	echo "<A HREF=\"patterns.php\">Create Patterns</A> | ";
+	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ";
+	echo "]<BR>\n";
 	echo "[ ";
 //	echo "<A HREF=\"detailarch.php?atp=t\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
 	echo "<A HREF=\"detailarch.php?atp=t\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
