@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Fri Jun  6 20:54:44 UTC 2014 - jrecord@suse.com
+Mon Jun  9 18:48:47 UTC 2014 - jrecord@suse.com
 
+- Removed targets for opening tabs
 - Added SR and OES views to index.php (bnc#881000)
 
 -------------------------------------------------------------------
