@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jun 06 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 Jun 09 -->\n"; ?>
 <HTML>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
@@ -81,6 +81,35 @@
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
 	echo "\n<P CLASS=\"head_1\" ALIGN=\"center\">Supportconfig Analysis Appliance<BR><FONT SIZE=\"+2\">$Top Most Recent Reports</FONT></P>\n";
 	echo "<P ALIGN=\"center\">[ ";
+	echo "<A HREF=\"opstate.php\">Operations</A> | ";
+	echo "<A HREF=\"patterns.php\">Create Patterns</A> | ";
+	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
+	echo "[ ";
+	echo "<A HREF=\"detailarch.php?atp=t&top=$Top&row=$rowStart\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
+	echo "<A HREF=\"detailarch.php?atp=p&top=$Top&row=$rowStart\" TITLE=\"Detailed Pending Report\">Pending</A>, ";
+	echo "<A HREF=\"detailarch.php?atp=a&top=$Top&row=$rowStart\" TITLE=\"Detailed Active Report\">Active</A>, ";
+	echo "<A HREF=\"detailarch.php?atp=d&top=$Top&row=$rowStart\" TITLE=\"Detailed Done Report\">Done</A>, ";
+	echo "<A HREF=\"detailarch.php?atp=e&top=$Top&row=$rowStart\" TITLE=\"Detailed Error Report\">Error</A>";
+	echo " | Views: ";
+	if ( $viewType == 'n' ) {
+		echo "Normal, ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=r&vt=n\">Normal</A>, ";
+	}
+	if ( $viewType == 'o' ) {
+		echo "OES, ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=o&vt=o\">OES</A>, ";
+	}
+	if ( $viewType == 's' ) {
+		echo "SR ";
+	} else {
+		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=n&vt=s\">SR</A> ";
+	}
+	echo " ]<BR>\n";
+?>
+<!--
+	echo "<P ALIGN=\"center\">[ ";
 	echo "<A HREF=\"opstate.php\" TARGET=\"opstate\">Operations</A> | ";
 	echo "<A HREF=\"patterns.php\" TARGET=\"sdp\">Create Patterns</A> | ";
 	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
@@ -107,7 +136,8 @@
 		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=n&vt=s\">SR</A> ";
 	}
 	echo " ]<BR>\n";
-
+-->
+<?PHP
 	$Connection = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
 	if ($Connection->connect_errno) {
 		echo "<P CLASS=\"head_1\" ALIGN=\"center\">SCA Database Index</P>\n";

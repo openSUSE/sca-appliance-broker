@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 May 12 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2014 Jun 09 -->\n"; ?>
 <HTML>
 <HEAD>
 <TITLE>SCA Operations</TITLE>
@@ -96,27 +96,33 @@
 	echo "<BODY BGPROPERTIES=FIXED BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n";
 	echo "\n<H1 ALIGN=\"center\">Supportconfig Analysis Appliance<br>Operations</H1>\n";
 	echo "<P ALIGN=\"center\">[ ";
-	echo "<A HREF=\"index.php\" TARGET=\"reports\">Reports</A> | ";
+//	echo "<A HREF=\"index.php\" TARGET=\"reports\">Reports</A> | ";
+	echo "<A HREF=\"index.php\">Reports</A> | ";
 	echo "<A HREF=\"docs.html\" TARGET=\"docs\">Documentation</A> ]<BR>\n";
 	echo "[ ";
-	echo "<A HREF=\"detailarch.php?atp=t\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
+//	echo "<A HREF=\"detailarch.php?atp=t\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
+	echo "<A HREF=\"detailarch.php?atp=t\" TITLE=\"All Archives Detailed Report\">All Archives:</A> ";
 	if ( $CountNew > 0 ) {
-		echo "<A HREF=\"detailarch.php?atp=p\" TARGET=\"pending\" TITLE=\"Detailed Pending Report\">Pending</A>, ";
+//		echo "<A HREF=\"detailarch.php?atp=p\" TARGET=\"pending\" TITLE=\"Detailed Pending Report\">Pending</A>, ";
+		echo "<A HREF=\"detailarch.php?atp=p\" TITLE=\"Detailed Pending Report\">Pending</A>, ";
 	} else {
 		echo "Pending, ";
 	}
 	if ( $CountActive > 0 ) {
-		echo "<A HREF=\"detailarch.php?atp=a\" TARGET=\"active\" TITLE=\"Detailed Active Report\">Active</A>, ";
+//		echo "<A HREF=\"detailarch.php?atp=a\" TARGET=\"active\" TITLE=\"Detailed Active Report\">Active</A>, ";
+		echo "<A HREF=\"detailarch.php?atp=a\" TITLE=\"Detailed Active Report\">Active</A>, ";
 	} else {
 		echo "Active, ";
 	}
 	if ( $CountDone > 0 ) {
-		echo "<A HREF=\"detailarch.php?atp=d\" TARGET=\"done\" TITLE=\"Detailed Done Report\">Done</A>, ";
+//		echo "<A HREF=\"detailarch.php?atp=d\" TARGET=\"done\" TITLE=\"Detailed Done Report\">Done</A>, ";
+		echo "<A HREF=\"detailarch.php?atp=d\" TITLE=\"Detailed Done Report\">Done</A>, ";
 	} else {
 		echo "Done, ";
 	}
 	if ( $CountError > 0 ) {
-	echo "<A HREF=\"detailarch.php?atp=e\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A>";
+//	echo "<A HREF=\"detailarch.php?atp=e\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A>";
+	echo "<A HREF=\"detailarch.php?atp=e\" TITLE=\"Detailed Error Report\">Error</A>";
 	} else {
 		echo "Error";
 	}
@@ -192,29 +198,34 @@
 	echo "\n<H2 ALIGN=\"left\">Archive Summary</H2>\n";
 	echo "\n<TABLE ALIGN=\"left\" WIDTH=\"50%\" CELLPADDING=2>\n";
 	echo "<TR ALIGN=\"center\" CLASS=\"head_2\">";
-	echo "<TH COLSPAN=\"2\" WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=t\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">Total Archives</A></TH><TH COLSPAN=\"2\" WIDTH=\"25%\">Results</TH>";
+//	echo "<TH COLSPAN=\"2\" WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=t\" TARGET=\"total\" TITLE=\"All Archives Detailed Report\">Total Archives</A></TH><TH COLSPAN=\"2\" WIDTH=\"25%\">Results</TH>";
+	echo "<TH COLSPAN=\"2\" WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=t\" TITLE=\"All Archives Detailed Report\">Total Archives</A></TH><TH COLSPAN=\"2\" WIDTH=\"25%\">Results</TH>";
 	echo "</TR>\n";
 	echo "<TR ALIGN=\"center\" CLASS=\"$row_color\">";
 	echo "<TD COLSPAN=\"2\">$CountArchives</TD><TD COLSPAN=\"2\">$CountResults</TD>";
 	echo "</TR>\n";
 	echo "<TR ALIGN=\"center\" CLASS=\"head_2\">";
 	if ( $CountNew > 0 ) {
-		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=p\" TARGET=\"pending\" TITLE=\"Detailed Pending Report\">Pending</A></TH>";
+//		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=p\" TARGET=\"pending\" TITLE=\"Detailed Pending Report\">Pending</A></TH>";
+		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=p\" TITLE=\"Detailed Pending Report\">Pending</A></TH>";
 	} else {
 		echo "<TH WIDTH=\"25%\">Pending</TH>";
 	}
 	if ( $CountActive > 0 ) {
-		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=a\" TARGET=\"active\" TITLE=\"Detailed Active Report\">Active</A></TH>";
+//		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=a\" TARGET=\"active\" TITLE=\"Detailed Active Report\">Active</A></TH>";
+		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=a\" TITLE=\"Detailed Active Report\">Active</A></TH>";
 	} else {
 		echo "<TH WIDTH=\"25%\">Active</TH>";
 	}
 	if ( $CountDone > 0 ) {
-		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=d\" TARGET=\"done\" TITLE=\"Detailed Done Report\">Done</A></TH>";
+//		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=d\" TARGET=\"done\" TITLE=\"Detailed Done Report\">Done</A></TH>";
+		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=d\" TITLE=\"Detailed Done Report\">Done</A></TH>";
 	} else {
 		echo "<TH WIDTH=\"25%\">Done</TH>";
 	}
 	if ( $CountError > 0 ) {
-		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=e\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A></TH>";
+//		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=e\" TARGET=\"error\" TITLE=\"Detailed Error Report\">Error</A></TH>";
+		echo "<TH WIDTH=\"25%\"><A HREF=\"detailarch.php?atp=e\" TITLE=\"Detailed Error Report\">Error</A></TH>";
 	} else {
 		echo "<TH WIDTH=\"25%\">Error</TH>";
 	}
