@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.23
+SVER=1.0.24
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.23
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 May 28
+# Modified:     2014 Jun 13
 #
 ##############################################################################
 #
@@ -210,6 +210,7 @@ checkDaemons()
 						echo
 						echo "  Run: systemctl restart apache2.service"
 						echo
+						FATAL_ERROR=1
 					fi
 				else
 					echo "ERROR: $SUB_STATE"

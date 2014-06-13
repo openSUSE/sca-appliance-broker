@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jun 13 16:01:07 UTC 2014 - jrecord@suse.com
+
+- Fixed restart error in setup-sca
+
+-------------------------------------------------------------------
 Mon Jun  9 19:58:43 UTC 2014 - jrecord@suse.com
 
 - Fixed header lines
