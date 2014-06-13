@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.2
+SVER=1.0.3
 
 ##############################################################################
 #  sdbroker-monitor - SCA Broker Monitor
@@ -8,7 +8,7 @@ SVER=1.0.2
 #
 # Description:  Monitors the current status of Broker Server and it's Agents
 # Runs on:      Broker Server
-# Modified:     2014 Mar 18
+# Modified:     2014 Jun 13
 #
 ##############################################################################
 #
@@ -61,7 +61,7 @@ notifyAdmin() {
 	shift
 	for SENDTO in $EMAIL_ADMIN
 	do
-		echo "$*" | /usr/bin/mailx -ns "Broker Monitor: $EVENT_STR" $SENDTO
+		echo "$*" | /usr/bin/mailx -r "SCA Broker Monitor <root>" -ns "Broker Monitor: $EVENT_STR" $SENDTO
 	done
 }
 

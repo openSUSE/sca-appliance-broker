@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Fri Jun 13 16:01:07 UTC 2014 - jrecord@suse.com
+Fri Jun 13 17:14:03 UTC 2014 - jrecord@suse.com
 
+- Added email from address
 - Fixed restart error in setup-sca
 
 -------------------------------------------------------------------
