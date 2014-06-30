@@ -369,7 +369,11 @@ installSDP()
 		echo "Already Installed"
 	else
 		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
-		setup-sdp -p $PASS_MYSQL_ROOT &>$TMP
+		EMAIL_DOMAIN=$(echo $EMAIL_USER_SCA | cut -d\@ -f2)
+		OPT_ADD=''
+		[[ -n "$EMAIL_DOMAIN" ]] && OPT_ADD="-d '$EMAIL_DOMAIN'"
+		[[ -n "$COMPANY_NAME" ]] && OPT_ADD="-c '$COMPANY_NAME' $OPT_ADD"
+		setup-sdp -p $PASS_MYSQL_ROOT $OPT_ADD &>$TMP
 		ERR=$?
 		if (( ERR > 0 )); then
 			echo 'ERROR'
@@ -472,6 +476,7 @@ EMAIL_USER_SCA=''
 ARCHIVE_LOCATION='file:///tmp/'
 CONFIRMED=''
 USE_HOSTNAME=''
+COMPANY_NAME=''
 DAEMON_CHECK=1
 FATAL_ERROR=0
 INSTALL_SDP_CONFIRMED=0
@@ -480,13 +485,14 @@ FTP_INSTALL=0
 ############################################################################
 # main
 ############################################################################
-while getopts ':bhp:w:e:fys:' TMPOPT
+while getopts ':bc:hp:w:e:fys:' TMPOPT
 do
 	case $TMPOPT in
 		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
 		\?) title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
 		h) title; showHelp; exit 0 ;;
 		b) DAEMON_CHECK=0 ;;
+		c) COMPANY_NAME=$OPTARG ;;
 		p) PASS_MYSQL_ROOT=$OPTARG ;;
 		w) PASS_WEB_USER=$OPTARG ;;
 		s) USE_HOSTNAME=$OPTARG ;;
