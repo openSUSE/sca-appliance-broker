@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.24
+SVER=1.0.25
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.24
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 Jun 13
+# Modified:     2014 Jul 02
 #
 ##############################################################################
 #
@@ -56,6 +56,8 @@ showHelp() {
 	echo 'Options:'
 	echo '  -h Show this screen and exit'
 	echo '  -b Disable Apache and MySQL daemon checks'
+	echo '  -c <str> Company name'
+	echo '  -d <str> Company email domain'
 	echo '  -p <str> MySQL root password'
 	echo '  -w <str> Web user password'
 	echo "  -e <email> Admin email address (Default: local root user)"
@@ -369,11 +371,8 @@ installSDP()
 		echo "Already Installed"
 	else
 		TMP=$(mktemp /tmp/setup-sca-sdp-XXXXXXXXXXXXXXX)
-		EMAIL_DOMAIN=$(echo $EMAIL_USER_SCA | cut -d\@ -f2)
-		OPT_ADD=''
-		[[ -n "$EMAIL_DOMAIN" ]] && OPT_ADD="-d '$EMAIL_DOMAIN'"
-		[[ -n "$COMPANY_NAME" ]] && OPT_ADD="-c '$COMPANY_NAME' $OPT_ADD"
-		setup-sdp -p $PASS_MYSQL_ROOT $OPT_ADD &>$TMP
+		[[ -z "$EMAIL_DOMAIN" ]] && EMAIL_DOMAIN=$(echo $EMAIL_USER_SCA | awk -F\@ '{print $2}')
+		/usr/sbin/setup-sdp -p $PASS_MYSQL_ROOT -d "$EMAIL_DOMAIN" -c "$COMPANY_NAME" &>$TMP
 		ERR=$?
 		if (( ERR > 0 )); then
 			echo 'ERROR'
@@ -399,7 +398,7 @@ setupBroker()
 
 	printf "$FMT2" "SCA Broker Setup"
 	TMP=$(mktemp /tmp/setup-sca-sdbroker-XXXXXXXXXXXXXXX)
-	setup-sdbroker -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION -w $PASS_WEB_USER &>$TMP
+	/usr/sbin/setup-sdbroker -p $PASS_MYSQL_ROOT -b sdbroker_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION -w $PASS_WEB_USER &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
@@ -416,7 +415,7 @@ setupAgent()
 {
 	printf "$FMT2" "SCA Agent Setup"
 	TMP=$(mktemp /tmp/setup-sca-sdagent-XXXXXXXXXXXXXXX)
-	setup-sdagent -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
+	/usr/sbin/setup-sdagent -h $USE_HOSTNAME -p $PASS_MYSQL_ROOT &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
@@ -433,7 +432,7 @@ configureAgent()
 {
 	printf "$FMT2" "SCA Agent Configuration"
 	TMP=$(mktemp /tmp/setup-sca-sdagent-config-XXXXXXXXXXXXXXX)
-	sdagent-config -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
+	/usr/sbin/sdagent-config -h $USE_HOSTNAME -l $USE_HOSTNAME -p sdagent_password -e $EMAIL_USER_SCA -i $ARCHIVE_LOCATION &>$TMP
 	ERR=$?
 	if (( ERR > 0 )); then
 		echo ERROR
@@ -473,6 +472,7 @@ FMT2="%-30s "
 PASS_MYSQL_ROOT=''
 PASS_WEB_USER=''
 EMAIL_USER_SCA=''
+EMAIL_DOMAIN=''
 ARCHIVE_LOCATION='file:///tmp/'
 CONFIRMED=''
 USE_HOSTNAME=''
@@ -485,7 +485,7 @@ FTP_INSTALL=0
 ############################################################################
 # main
 ############################################################################
-while getopts ':bc:hp:w:e:fys:' TMPOPT
+while getopts ':bc:d:hp:w:e:fys:' TMPOPT
 do
 	case $TMPOPT in
 		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
@@ -493,6 +493,7 @@ do
 		h) title; showHelp; exit 0 ;;
 		b) DAEMON_CHECK=0 ;;
 		c) COMPANY_NAME=$OPTARG ;;
+		d) EMAIL_DOMAIN=$OPTARG ;;
 		p) PASS_MYSQL_ROOT=$OPTARG ;;
 		w) PASS_WEB_USER=$OPTARG ;;
 		s) USE_HOSTNAME=$OPTARG ;;
