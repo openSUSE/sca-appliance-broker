@@ -1,4 +1,4 @@
-.TH SETUP-SCA 8 "20 Mar 2014" "sca-appliance-broker" "Supportconfig Analysis Manual"
+.TH SETUP-SCA 8 "04 Jul 2014" "sca-appliance-broker" "Supportconfig Analysis Manual"
 .SH NAME
 setup-sca - SCA Appliance Setup Tool
 .SH SYNOPSIS
@@ -11,30 +11,39 @@ services are running, and configures the SCA appliance components.
 \fB\-h\fR
 Show this help screen.
 .TP
-\fB\-c\fR
-Do not clear the screen
+\fB\-c\fR \fIstring\fR
+Company name used in pattern template generation if sca-appliance-patdev is installed. This 
+.TP
+\fB\-d\fR \fIstring\fR
+Company's email domain name used in pattern template generation if sca-appliance-patdev is installed. If not specified, the domain from -e is used if present. 
 .TP
 \fB\-p\fR \fIstring\fR
 The MySQL root password.
 .TP
-\fB\-u\fR \fIstring\fR
-The SCA user password (Default: MySQL root password)
+\fB\-w\fR \fIstring\fR
+The SCA web interface password.
 .TP
 \fB\-e\fR \fIstring\fR
 Admin email address (Default: local root user)
 .TP
 \fB\-s\fR \fIstring\fR
-Overrides the server hostname value
+Overrides the server hostname value. By default the local hostname of the server is used. 
 .TP
 \fB\-f\fR
-Change to FTP archive source file:///srv/ftp/upload (Default: file:///tmp/)
+Change to FTP archive source file:///srv/ftp/upload. Only vsftpd with an anonymous ftp upload configuration is supported. If you want to use a different FTP server or configuration, you must configure it manually. (Default: file:///tmp/)
 .TP
 \fB\-y\fR
 Confirms the deletion of a pre-existing database and users
 .SH EXAMPLES
 .TP
-setup-sca -cp linux
-Configures the server using a MySQL root password of linux to analyze supportconfigs placed in the /tmp directory.
+\fBsetup-sca\fR
+Prompts the user for the MySQL root password and the SCA web interface password, then configures SCA to analyze supportconfigs placed in the /tmp directory.
+.TP
+\fBsetup-sca -p linux -w linux\fR
+Configures the server using a MySQL root password of linux and an SCA web interface password of linux to analyze supportconfigs placed in the /tmp directory. No interactive prompts issued.
+.TP
+\fBsetup-sca -fp linux -w linux\fR
+A non-interactive configuration with the MySQL root and web interface passwords set and supportconfigs placed in the anonymous ftp user directory, /srv/ftp/upload. The setup program will also confirm that vsftpd is installed and active with an anonymous ftp configuration. 
 .SH AUTHOR
 Jason Record <jrecord@suse.com>
 .SH COPYRIGHT

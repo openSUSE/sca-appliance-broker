@@ -1,4 +1,4 @@
-.TH SETUP-SDBROKER 8 "20 Mar 2014" "sca-appliance-broker" "Supportconfig Analysis Manual"
+.TH SETUP-SDBROKER 8 "04 Jul 2014" "sca-appliance-broker" "Supportconfig Analysis Manual"
 .SH NAME
 setup-sdbroker - SCA Broker Setup Tool
 .SH SYNOPSIS
@@ -10,11 +10,11 @@ Configures the MySQL administration and report database used by the Supportconfi
 \fB\-h\fR
 Show this help screen.
 .TP
-\fB\-c\fR
-Do not clear the screen. Helpful for running in scripts.
-.TP
 \fB\-p\fR \fIstring\fR
 MySQL root password. The root password is needed to create the ServerDiagnostics database and its associated tables.
+.TP
+\fB\-w\fR \fIstring\fR
+The SCA Web user interface password.
 .TP
 \fB\-b\fR \fIstring\fR
 MySQL sdbroker password. The password to use for the sdbroker MySQL user. The sdbroker user is local and is used by \fBsdbroker\fR(1). The password is initially set based on the user schema file \fI/usr/share/doc/packages/scdiag/ServerDiagnostics_Users.sql\fR.
