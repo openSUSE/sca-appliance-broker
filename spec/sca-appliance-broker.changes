@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr 14 20:44:00 UTC 2016 - jrecord@suse.com
+
+- setup-sca correctly checks mysql (bsc#975651)
+
+-------------------------------------------------------------------
 Fri Jul  4 18:28:50 UTC 2014 - jrecord@suse.com
 
 - Updated man pages

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER=1.0.25
+SVER=1.0.28
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
-#  Copyright (C) 2014 SUSE LLC
+#  Copyright (C) 2014-2016 SUSE LLC
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2014 Jul 02
+# Modified:     2016 Apr 14
 #
 ##############################################################################
 #
@@ -69,7 +69,7 @@ showHelp() {
 
 showUsage() {
 	echo
-	SERVER=$(hostname -f)
+	SERVER=$(hostname -f &>/dev/null)
 	[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
 	echo "SCA Appliance Server Configuration Complete"
 	echo
@@ -96,6 +96,11 @@ showUsage() {
 	echo "To view the analysis reports, goto the URL:"
 	echo
 	echo " http://${SERVER}/sca/"
+	echo
+	echo "To check the status of the SCA Appliance Server, run:"
+	echo
+	echo " scadb"
+	echo " See also: scadb help"
 	echo
 }
 
@@ -170,10 +175,10 @@ checkDaemons()
 	printf "$FMT2" "Apache Server"
 	if rpm -q systemd &>/dev/null; then
 		if rpm -q apache2 &>/dev/null; then
-			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState apache2.service | cut -d= -f2)
-			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
-				SUB_STATE=$(systemctl show --system --no-pager -p SubState apache2.service | cut -d= -f2)
-				if echo $SUB_STATE | grep -i running &>/dev/null; then
+			if systemctl --quiet is-enabled apache2.service &>/dev/null
+			then
+				if  systemctl --quiet is-active apache2.service &>/dev/null
+				then
 					RESTART_APACHE=0
 					echo "Active"
 					APACHECTL_BIN="/usr/sbin/apache2ctl"
@@ -236,18 +241,12 @@ checkDaemons()
 		FATAL_ERROR=1
 	fi
 
-	DAEMON_BIN="/etc/init.d/mysql"
 	printf "$FMT2" "MySQL Server"
 	if rpm -q mariadb &>/dev/null; then
-		if chkconfig mysql 2>/dev/null | grep on &>/dev/null; then
-			$DAEMON_BIN status | grep running &>/dev/null
-			NOT_RUNNING=$?
-			if (( NOT_RUNNING )); then
-				echo "ERROR: Not Active"
-				echo "  Run: /etc/init.d/mysql start"
-				echo "  Run: mysql_secure_installation"; echo
-				FATAL_ERROR=1
-			else
+		if systemctl --quiet is-enabled mysql &>/dev/null
+		then
+			if systemctl --quiet is-active mysql &>/dev/null 
+			then
 				echo "Active"
 				if [[ -z "$PASS_MYSQL_ROOT" ]]; then
 					printf "%s" " Enter MySQL root password: "
@@ -257,11 +256,16 @@ checkDaemons()
 					printf "$FMT1" "MySQL Root Password" "Set"
 				fi
 				DB_ROOT="-u root -p${PASS_MYSQL_ROOT}"
+			else
+				echo "ERROR: Not Active"
+				echo "  Run: systemctl start mysql.service"
+				echo "  Run: mysql_secure_installation"; echo
+				FATAL_ERROR=1
 			fi
 		else
 			echo "ERROR: Disabled"; echo
-			echo "  Run: chkconfig mysql on"
-			echo "  Run: /etc/init.d/mysql start"
+			echo "  Run: systemctl enable mysql.service"
+			echo "  Run: systemctl start mysql.service"
 			echo "  Run: mysql_secure_installation"; echo
 			FATAL_ERROR=1
 		fi
@@ -299,10 +303,10 @@ checkFTP()
 	if rpm -q systemd &>/dev/null; then
 		SERVICE_NAME='vsftpd.service'
 		if rpm --quiet -q vsftpd &>/dev/null; then
-			UNIT_FILE_STATE=$(systemctl show --system --no-pager -p UnitFileState $SERVICE_NAME | cut -d= -f2)
-			if echo $UNIT_FILE_STATE | grep -i 'enabled' &>/dev/null; then
-				SUB_STATE=$(systemctl show --system --no-pager -p SubState $SERVICE_NAME | cut -d= -f2)
-				if echo $SUB_STATE | grep -i running &>/dev/null; then
+			if systemctl --quiet is-enabled $SERVICE_NAME &>/dev/null
+			then
+				if systemctl --quiet is-active $SERVICE_NAME &>/dev/null
+				then	
 					CONFIG_FILE='/etc/vsftpd.conf'
 					echo "Active"
 					if [[ -s $CONFIG_FILE ]]
