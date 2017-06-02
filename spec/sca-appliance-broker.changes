@@ -1,5 +1,5 @@
 -------------------------------------------------------------------
-Wed Feb 15 17:38:11 UTC 2017 - jason.record@suse.com
+Fri Jun  2 20:50:50 UTC 2017 - jason.record@suse.com
 
 - setup-sca correctly checks mysql (bsc#975651)
 
