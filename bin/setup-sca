@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.30
+SVER=1.0.31
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.30
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2017 Feb 15
+# Modified:     2017 Dec 18
 #
 ##############################################################################
 #
@@ -30,6 +30,7 @@ SVER=1.0.30
 ##############################################################################
 CURRENT_SCRIPT=$(basename $0)
 CURRENT_ARGS="$*"
+CRON_COMBINED="/usr/share/doc/packages/sca-appliance-broker/combined.cron"
 
 title() {
 	echo "####################################################################"
@@ -451,7 +452,7 @@ configureAgent()
 
 configureCron()
 {
-	crontab /usr/share/doc/packages/sca/combined.cron
+	crontab $CRON_COMBINED
 	printf "$FMT1" "Install Cron Entries" "Done"
 }
 
