@@ -13,7 +13,6 @@
 # published by the Open Source Initiative.
 
 %define sca_common sca
-%define sca_libdir /usr/lib/%{sca_common}
 %define sca_webdir /srv/www/htdocs/%{sca_common}
 %define sca_configdir %{_sysconfdir}/%{sca_common}
 
@@ -62,6 +61,7 @@ install -m 644 man/*.5.gz %{buildroot}%{_mandir}/man5
 %files
 %defattr(-,root,root)
 %dir %{_docdir}/%{name}
+%dir %{sca_configdir}
 %{_sbindir}/scadb
 %{_sbindir}/sdbroker
 %{_sbindir}/sdbroker-monitor
