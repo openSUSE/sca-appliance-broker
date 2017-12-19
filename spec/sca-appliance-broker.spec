@@ -61,6 +61,7 @@ install -m 644 man/*.5.gz %{buildroot}%{_mandir}/man5
 %files
 %defattr(-,root,root)
 %dir %{_docdir}/%{name}
+%dir %{sca_webdir}
 %dir %{sca_configdir}
 %{_sbindir}/scadb
 %{_sbindir}/sdbroker
