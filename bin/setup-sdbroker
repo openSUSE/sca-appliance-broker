@@ -1,15 +1,15 @@
 #!/bin/bash
 
-SVER=1.0.7
+SVER='1.0.7'
 
 ##############################################################################
 #  setup-sdbroker - SCA Broker Setup Tool
-#  Copyright (C) 2017 SUSE LLC
+#  Copyright (C) 2018 SUSE LLC
 #
 # Description:  Creates the main mySQL database for the Supportconfig Diagnostic
 #               Tool infrastructure
 # Runs on:      Broker Server
-# Modified:     2017 Dec 18
+# Modified:     2018 Jan 02
 #
 ##############################################################################
 #
@@ -26,7 +26,7 @@ SVER=1.0.7
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 #  Authors/Contributors:
-#     Jason Record (jrecord@suse.com)
+#     Jason Record (jason.record@suse.com)
 #
 ##############################################################################
 
@@ -56,7 +56,7 @@ title() {
 
 showHelp() {
 	title
-	[ -n "$1" ] && { echo "$1"; echo; }
+	[[ -n "$1" ]] && { echo "$1"; echo; }
 	echo "Usage: $CURRENT_SCRIPT -p <root_password> -b <sdbroker_password> -e <email> -i <url> [OPTIONS]"
 	echo 'Description:'
 	echo '  Configures the MySQL administration and report database used by'
@@ -78,12 +78,12 @@ showHelp() {
 }
 
 main() {
-	[ -s ${SCHEMA_PATH}/ServerDiagnostics_DB.sql ] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_DB.sql"; exit 5; }
-	[ -s ${SCHEMA_PATH}/ServerDiagnostics_Users.sql ] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_Users.sql"; exit 5; }
+	[[ -s ${SCHEMA_PATH}/ServerDiagnostics_DB.sql ]] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_DB.sql"; exit 5; }
+	[[ -s ${SCHEMA_PATH}/ServerDiagnostics_Users.sql ]] || { showHelp "ERROR: Schema file not found: ${SCHEMA_PATH}/ServerDiagnostics_Users.sql"; exit 5; }
 	DB_ROOT="-u $DB_USER -p${DB_PASS}"
 	mysql $DB_ROOT -e "use $DB_NAME" &>/dev/null
 	RC=$?
-	if [ $RC -eq 0 ]; then
+	if [[ $RC -eq 0 ]]; then
 		if (( CONFIRMED )); then
 			DELETE_DB=1
 		else
@@ -103,7 +103,7 @@ main() {
 	fi
 
 	USER_FOUND=$(mysql -NB $DB_ROOT -e "SELECT User FROM user WHERE User='sdbroker'" mysql 2>/dev/null)
-	if [ -n "$USER_FOUND" ]; then
+	if [[ -n "$USER_FOUND" ]]; then
 		if (( CONFIRMED )); then
 			DELETE_USERS=1
 		else
@@ -125,10 +125,10 @@ main() {
 	printf "$FMT" "Creating Database:" $DB_NAME
 	mysql $DB_ROOT -e "CREATE DATABASE $DB_NAME"
 	RC=$?
-	[ $RC -gt 0 ] && { echo; exit $RC; }
+	[[ $RC -gt 0 ]] && { echo; exit $RC; }
 	cat ${SCHEMA_PATH}/ServerDiagnostics_DB.sql | mysql $DB_ROOT $DB_NAME
 	RC=$?
-	if [ $RC -eq 0 ]; then
+	if [[ $RC -eq 0 ]]; then
 		printf "$FMT" "Creating Users:" "$DB_ALL_USERS"
 		cat ${SCHEMA_PATH}/ServerDiagnostics_Users.sql | mysql $DB_ROOT
 	fi
@@ -143,7 +143,7 @@ main() {
 		RCODE=$?
 		;;
 	file)
-		if [ ! -d $OPT_INSRC_DIR ]; then
+		if [[ ! -d $OPT_INSRC_DIR ]]; then
 			RCODE=10
 		fi
 		;;
@@ -157,7 +157,7 @@ main() {
 	fi
 
 	echo
-	if [ -e $BROKER_CONFIG ]; then
+	if [[ -e $BROKER_CONFIG ]]; then
 		OPT_EMAIL_ADMIN=$(echo $OPT_EMAIL_ADMIN | sed -e "s!,! !g;s!  ! !g")
 		sed -i -e "s!^DB_PASS=.*!DB_PASS='$OPT_PASS'!" $BROKER_CONFIG
 		sed -i -e "s!^INSRC=.*!INSRC='${OPT_INSRC}'!" $BROKER_CONFIG
@@ -179,7 +179,7 @@ main() {
 	fi
 	DB_CONNECT="-u sdbroker -p${OPT_PASS} $DB_NAME"
 	mysql $DB_CONNECT -e "SHOW TABLES"
-	if [ $? -gt 0 ]; then
+	if [[ $? -gt 0 ]]; then
 		echo
 		exit 3
 	else
@@ -189,7 +189,7 @@ main() {
 #		echo "  Run 'crontab $CMB_CRON' if this server has sdbroker and sdagent"
 #		echo "  Run 'crontab -e sca -e' to manually edit the cron"
 #		echo
-#		[ -e $DEF_CRON ] && cat $DEF_CRON
+#		[[ -e $DEF_CRON ]] && cat $DEF_CRON
 		echo
 		echo "Run setup-sdagent on this server."
 	fi

@@ -1,5 +1,34 @@
 #!/bin/bash
-SVER="1.0.22"
+
+SVER='1.0.23'
+
+##############################################################################
+#  scadb - Supportconfig Analysis Database Tool
+#  Copyright (c) 2018 SUSE LLC
+#
+# Description:  Manages the SCA Database
+# Runs on:      Broker Server
+# Modified:     2018 Jan 02
+
+##############################################################################
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; version 2 of the License.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+#  Authors/Contributors:
+#     Jason Record (jason.record@suse.com)
+#
+##############################################################################
+
 ALL="arch agents workers"
 CONF='/etc/sca/sdbroker.conf'
 DEFAULT_LIMIT=30
@@ -175,7 +204,7 @@ archive)
 	case $2 in
 	reset)
 		ARCHIVE_ID=$3
-		if [ -n "$ARCHIVE_ID" ]; then
+		if [[ -n "$ARCHIVE_ID" ]]; then
 			echo "Resetting archive $ARCHIVE_ID to be reanalyzed"
 			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Reanalysis Request', ArchiveState='New', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
 			if [ $? -eq 0 ]; then
@@ -190,7 +219,7 @@ archive)
 		;;
 	done)
 		ARCHIVE_ID=$3
-		if [ -n "$ARCHIVE_ID" ]; then
+		if [[ -n "$ARCHIVE_ID" ]]; then
 			echo "Marking archive $ARCHIVE_ID to be complete"
 			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Marked Done', ArchiveState='Done', RetryCount=0 WHERE ArchiveID=$ARCHIVE_ID"
 		else
@@ -201,7 +230,7 @@ archive)
 		;;
 	ignore)
 		ARCHIVE_ID=$3
-		if [ -n "$ARCHIVE_ID" ]; then
+		if [[ -n "$ARCHIVE_ID" ]]; then
 			echo "Marking archive $ARCHIVE_ID to be ignored"
 			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Ignore Request', ArchiveState='Error', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
 			if [ $? -eq 0 ]; then
@@ -261,7 +290,7 @@ report)
 	;;
 import)
 	FILE=$2
-	if [ -n "$FILE" ]; then
+	if [[ -n "$FILE" ]]; then
 		echo "Importing file: '$FILE'"
 		cat $FILE | mysql $DB_CONNECT
 	else
@@ -306,7 +335,7 @@ maint)
 	;;
 old)
 	DAYS=$2
-	if [ -z "$DAYS" ]; then
+	if [[ -z "$DAYS" ]]; then
 		echo "Error: Missing days value"; echo
 		showHelp
 		exit 3
@@ -339,7 +368,7 @@ old)
 	;;
 del)
 	ARCHID=$2
-	if [ -z "$ARCHID" ]; then
+	if [[ -z "$ARCHID" ]]; then
 		echo "Error: Missing Archive ID value"; echo
 		showHelp
 		exit 3

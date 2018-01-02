@@ -1,16 +1,16 @@
 #!/bin/bash
 
-SVER=1.0.6
+SVER='1.0.7'
 
 ##############################################################################
 #  sdagent-config - SCA Agent Setup Tool
-#  Copyright (C) 2014 SUSE LLC
+#  Copyright (C) 2014-2018 SUSE LLC
 #
 # Description:  Configures the agent server so it knows how to communicate
 #               with the Broker server and the mySQL database on the Broker
 #               server.
 # Runs on:      Broker Server
-# Modified:     2014 Apr 22
+# Modified:     2018 Jan 02
 #
 ##############################################################################
 #
@@ -27,7 +27,7 @@ SVER=1.0.6
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 #  Authors/Contributors:
-#     Jason Record (jrecord@suse.com)
+#     Jason Record (jason.record@suse.com)
 #
 ##############################################################################
 
@@ -48,7 +48,7 @@ title() {
 }
 
 showHelp() {
-	[ -n "$1" ] && { echo "$1"; echo; }
+	[[ -n "$1" ]] && { echo "$1"; echo; }
 	echo "Usage: $CURRENT_SCRIPT -h <agent> -p <root_password> [OPTIONS]"
 	echo 'Description:'
 	echo '  Configures a new agent that will run sdagent.'
@@ -65,12 +65,12 @@ showHelp() {
 main() {
 	DB_ADMIN="-u $DB_USER -p${DB_PASS} $DB_NAME_ADMIN"
 	
-	[ -n "$OPT_WORKERS" ] && WORKERS=$OPT_WORKERS || WORKERS=$DEF_WORKERS
+	[[ -n "$OPT_WORKERS" ]] && WORKERS=$OPT_WORKERS || WORKERS=$DEF_WORKERS
 	AGENT_MSG="Run sdagent-config on $OPT_FQDN"
 
 	mysql $DB_ADMIN -e "INSERT INTO Agents (AgentState, AgentEvent, AgentMessage, Hostname, ThreadsMax) VALUES ('Configure', NOW(), '$AGENT_MSG', '$AGENT_FQDN', '$WORKERS')"
 	RC=$?
-	if [ $RC -gt 0 ]; then
+	if [[ $RC -gt 0 ]]; then
 		echo
 		echo "Run setup-sdbroker to configure the database"
 		echo
@@ -81,7 +81,7 @@ main() {
 		do
 			mysql $DB_ADMIN -e "INSERT INTO AgentWorkers (WorkersAgentID, HomePath) VALUES ('$AGENT_ID', '/var/tmp/sca')"
 			RC=$?
-			if [ $RC -gt 0 ]; then
+			if [[ $RC -gt 0 ]]; then
 				echo
 				echo "Run setup-sdbroker to configure the database"
 				echo
@@ -112,8 +112,8 @@ do
 		w) OPT_WORKERS=$OPTARG ;;
 	esac
 done
-[ -z "$OPT_FQDN" ] && { title; showHelp "ERROR: Missing Agent hostname"; exit 1; } || AGENT_FQDN=$OPT_FQDN
-[ -z "$OPT_PASS" ] && { title; showHelp "ERROR: Missing MySQL root Password"; exit 1; } || DB_PASS=$OPT_PASS
+[[ -z "$OPT_FQDN" ]] && { title; showHelp "ERROR: Missing Agent hostname"; exit 1; } || AGENT_FQDN=$OPT_FQDN
+[[ -z "$OPT_PASS" ]] && { title; showHelp "ERROR: Missing MySQL root Password"; exit 1; } || DB_PASS=$OPT_PASS
 
 title
 main

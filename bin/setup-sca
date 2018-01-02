@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER=1.0.31_DEV1
+SVER='1.0.31_DEV2'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
-#  Copyright (C) 2014-2017 SUSE LLC
+#  Copyright (C) 2014-2018 SUSE LLC
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2017 Dec 22
+# Modified:     2018 Jan 02
 #
 ##############################################################################
 #
@@ -25,13 +25,15 @@ SVER=1.0.31_DEV1
 #  along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 #  Authors/Contributors:
-#     Jason Record (jrecord@suse.com)
+#     Jason Record (jason.record@suse.com)
 #
 ##############################################################################
 CURRENT_SCRIPT=$(basename $0)
 CURRENT_ARGS="$*"
 CRON_COMBINED="/usr/share/doc/packages/sca-appliance-broker/combined.cron"
 PHP_VERSION=''
+SERVER=$(hostname -f &>/dev/null)
+[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
 
 title() {
 	echo "####################################################################"
@@ -41,14 +43,14 @@ title() {
 }
 
 showHelp() {
-	[ -n "$1" ] && { echo "$1"; echo; }
+	[[ -n "$1" ]] && { echo "$1"; echo; }
 	echo "Usage: $CURRENT_SCRIPT [OPTIONS] Run the following command from each server you want analyzed:
 
- supportconfig -U 'ftp://151.155.233.40/upload/'
+ supportconfig -U 'ftp://${SERVER}/upload/'
 
  To view the analysis reports, goto the URL:
 
- https://151.155.233.40/
+ https://${SERVER}/
 "
 	echo
 	echo 'Description:'
@@ -71,8 +73,6 @@ showHelp() {
 
 showUsage() {
 	echo
-	SERVER=$(hostname -f &>/dev/null)
-	[[ -z "$SERVER" ]] && SERVER=$HOSTNAME
 	echo "SCA Appliance Server Configuration Complete"
 	echo
 	echo "To analyze supportconfigs:"
