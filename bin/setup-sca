@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER=1.0.31
+SVER=1.0.31_DEV1
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER=1.0.31
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2017 Dec 18
+# Modified:     2017 Dec 22
 #
 ##############################################################################
 #
@@ -31,6 +31,7 @@ SVER=1.0.31
 CURRENT_SCRIPT=$(basename $0)
 CURRENT_ARGS="$*"
 CRON_COMBINED="/usr/share/doc/packages/sca-appliance-broker/combined.cron"
+PHP_VERSION=''
 
 title() {
 	echo "####################################################################"
@@ -105,6 +106,26 @@ showUsage() {
 	echo
 }
 
+getPHPVersion() {
+	printf "$FMT2" "PHP Version"
+	FOUND_VERSION=0
+	CHECK_VERSIONS="php7 php5"
+	for PHP_VERSION in $CHECK_VERSIONS
+	do
+		if zypper se ${PHP_VERSION}-mysql &>/dev/null; then
+			FOUND_VERSION=1
+			break
+		fi
+	done
+	if (( FOUND_VERSION )); then
+			echo $PHP_VERSION
+	else
+			echo "ERROR"
+			PHP_VERSION='_unknown_'
+			FATAL_ERROR=1
+	fi
+}
+
 serverAccess()
 {
 	printf "$FMT2" "Pinging $USE_HOSTNAME"
@@ -143,7 +164,7 @@ packageCheck()
 	fi
 
 	printf "$FMT2" "Additional Required Packages"
-	REQUIRED_PACKAGES='php5-bz2 php5-mbstring php5-mcrypt php5-mysql php5-zip php5-zlib apache2-mod_php5'
+	REQUIRED_PACKAGES="${PHP_VERSION}-bz2 ${PHP_VERSION}-mbstring ${PHP_VERSION}-mysql ${PHP_VERSION}-zip ${PHP_VERSION}-zlib apache2-mod_${PHP_VERSION}"
 	MISSING_PACKAGES=''
 	for PACKAGE in $REQUIRED_PACKAGES
 	do
@@ -283,13 +304,13 @@ phpCheck()
 	ACONF="/etc/sysconfig/apache2"
 	if [[ -s $ACONF ]]
 	then
-		if grep '^APACHE_MODULES=' $ACONF | grep 'php5' &>/dev/null
+		if grep '^APACHE_MODULES=' $ACONF | grep "${PHP_VERSION}" &>/dev/null
 		then
 			echo 'Installed'
 		else
 			BCONF="${ACONF}.orig_setup-sca"
 			[[ -s $BCONF ]] || mv $ACONF $BCONF
-			sed -e 's/^APACHE_MODULES="\(.*\)"/APACHE_MODULES="\1 php5"/' $BCONF > $ACONF
+			sed -e "s/^APACHE_MODULES=\"\(.*\)\"/APACHE_MODULES=\"\1 ${PHP_VERSION}\"/" $BCONF > $ACONF
 			echo 'Configured'
 		fi
 	else
@@ -513,6 +534,7 @@ done
 ############################################################################
 title
 serverAccess
+getPHPVersion
 phpCheck
 packageCheck
 printf "$FMT1" "Archive Location" "$ARCHIVE_LOCATION"
