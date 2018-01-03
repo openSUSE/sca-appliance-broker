@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.23'
+SVER='1.0.24'
 
 ##############################################################################
 #  scadb - Supportconfig Analysis Database Tool
@@ -8,7 +8,7 @@ SVER='1.0.23'
 #
 # Description:  Manages the SCA Database
 # Runs on:      Broker Server
-# Modified:     2018 Jan 02
+# Modified:     2018 Jan 03
 
 ##############################################################################
 #
@@ -207,7 +207,7 @@ archive)
 		if [[ -n "$ARCHIVE_ID" ]]; then
 			echo "Resetting archive $ARCHIVE_ID to be reanalyzed"
 			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Reanalysis Request', ArchiveState='New', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
-			if [ $? -eq 0 ]; then
+			if [[ $? -eq 0 ]]; then
 				echo "Removing any previous analysis results"
 				mysql $DB_CONNECT -e "DELETE FROM Results WHERE ResultsArchiveID=$ARCHIVE_ID"
 			fi
@@ -233,7 +233,7 @@ archive)
 		if [[ -n "$ARCHIVE_ID" ]]; then
 			echo "Marking archive $ARCHIVE_ID to be ignored"
 			mysql $DB_CONNECT -e "UPDATE Archives SET ArchiveEvent=NOW(), ArchiveMessage='Admin Ignore Request', ArchiveState='Error', RetryCount=0, AssignedAgentID=NULL, AssignedWorkerID=NULL, ReportDate=NULL, ReportTime=NULL WHERE ArchiveID=$ARCHIVE_ID"
-			if [ $? -eq 0 ]; then
+			if [[ $? -eq 0 ]]; then
 				echo "Removing any assigned worker threads"
 				mysql $DB_CONNECT -e "UPDATE AgentWorkers SET ArchiveAssigned=NULL WHERE ArchiveAssigned=$ARCHIVE_ID"
 				echo "Removing any previous analysis results"
@@ -343,7 +343,7 @@ old)
 		if [[ "$DAYS" =~ ^[0-9]*$ ]]; then
 			ARCHIDS=$(mysql -NB $DB_CONNECT -e "SELECT ArchiveID FROM Archives WHERE DATE(ArchiveEvent) < SUBDATE(CURRENT_DATE(), INTERVAL $DAYS DAY)")
 			ARCHCNT=$(echo $ARCHIDS | wc -w)
-			if [ $ARCHCNT -gt 0 ]; then
+			if [[ $ARCHCNT -gt 0 ]]; then
 				if confirmed "Found $ARCHCNT archives older than $DAYS days, delete them?"; then
 					echo "Deleting Archive Results for $ARCHCNT Archives"
 					mysql $DB_CONNECT -e "LOCK TABLES Results WRITE" #Establish MUTEX

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jan  3 19:31:11 UTC 2018 - jason.record@suse.com
+
+- Removed additional /usr/bin/[ references
+
+-------------------------------------------------------------------
 Tue Jan  2 20:01:57 UTC 2018 - jason.record@suse.com
 
 - Removed references to /usr/bin/[
