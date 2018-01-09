@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.31_DEV2'
+SVER='1.0.35'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER='1.0.31_DEV2'
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2018 Jan 02
+# Modified:     2018 Jan 09
 #
 ##############################################################################
 #
@@ -172,6 +172,11 @@ packageCheck()
 			MISSING_PACKAGES="$PACKAGE $MISSING_PACKAGES"
 		fi
 	done
+	PHP_DIR="/var/lib/${PHP_VERSION}"
+	SCA_OWNER="wwwrun"
+	if [[ -d $PHP_DIR ]]; then
+		chown $SCA_OWNER $PHP_DIR
+	fi
 	if [[ -n "$MISSING_PACKAGES" ]]; then
 		echo 'ERROR'
 		printf "$FMT1" "  Missing required packages:" "$MISSING_PACKAGES"

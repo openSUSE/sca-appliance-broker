@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Jan  9 18:31:50 UTC 2018 - jason.record@suse.com
+
+- Correct ownership of /var/lib/php? (bsc#1075216)
+
+-------------------------------------------------------------------
 Wed Jan  3 19:31:11 UTC 2018 - jason.record@suse.com
 
 - Removed additional /usr/bin/[ references
