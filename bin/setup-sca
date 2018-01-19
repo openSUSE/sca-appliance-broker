@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.35'
+SVER='1.0.36'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -59,6 +59,7 @@ showHelp() {
 	echo
 	echo 'Options:'
 	echo '  -h Show this screen and exit'
+	echo '  -a Disable activating services'
 	echo '  -b Disable Apache and MySQL daemon checks'
 	echo '  -c <str> Company name'
 	echo '  -d <str> Company email domain'
@@ -239,23 +240,33 @@ checkDaemons()
 							RESTART_APACHE=1
 						fi
 					fi
-					if (( RESTART_APACHE ))
-					then
+					if (( RESTART_APACHE )); then
 						echo
 						echo "  Run: systemctl restart apache2.service"
 						echo
 						FATAL_ERROR=1
 					fi
 				else
-					echo "ERROR: $SUB_STATE"
-					echo; echo "  Run: systemctl start apache2.service"; echo
-					FATAL_ERROR=1
+					if (( ACTIVATE_SERVICES )); then
+						systemctl start apache2.service &>/dev/null
+						echo "Started"
+					else
+						echo "ERROR: $SUB_STATE"
+						echo; echo "  Run: systemctl start apache2.service"; echo
+						FATAL_ERROR=1
+					fi
 				fi
 			else
-				echo "ERROR: Disabled"; echo
-				echo "  Run: systemctl enable apache2.service"
-				echo "  Run: systemctl start apache2.service"; echo
-				FATAL_ERROR=1
+				if (( ACTIVATE_SERVICES )); then
+					systemctl enable apache2.service &>/dev/null
+					systemctl start apache2.service &>/dev/null
+					echo "Activated"
+				else
+					echo "ERROR: Disabled"; echo
+					echo "  Run: systemctl enable apache2.service"
+					echo "  Run: systemctl start apache2.service"; echo
+					FATAL_ERROR=1
+				fi
 			fi
 		else
 			echo "ERROR: Not Installed"
@@ -284,16 +295,29 @@ checkDaemons()
 				fi
 				DB_ROOT="-u root -p${PASS_MYSQL_ROOT}"
 			else
-				echo "ERROR: Not Active"
-				echo "  Run: systemctl start mysql.service"
-				echo "  Run: mysql_secure_installation"; echo
+				if (( ACTIVATE_SERVICES )); then
+					systemctl start mysql.service &>/dev/null
+					echo "Started"; echo
+					echo "  Run: mysql_secure_installation"; echo
+				else
+					echo "ERROR: Not Active"
+					echo "  Run: systemctl start mysql.service"
+					echo "  Run: mysql_secure_installation"; echo
+				fi
 				FATAL_ERROR=1
 			fi
 		else
-			echo "ERROR: Disabled"; echo
-			echo "  Run: systemctl enable mysql.service"
-			echo "  Run: systemctl start mysql.service"
-			echo "  Run: mysql_secure_installation"; echo
+			if (( ACTIVATE_SERVICES )); then
+				systemctl enable mysql.service &>/dev/null
+				systemctl start mysql.service &>/dev/null
+				echo "Activated"; echo
+				echo "  Run: mysql_secure_installation"; echo
+			else
+				echo "ERROR: Disabled"; echo
+				echo "  Run: systemctl enable mysql.service"
+				echo "  Run: systemctl start mysql.service"
+				echo "  Run: mysql_secure_installation"; echo
+			fi
 			FATAL_ERROR=1
 		fi
 	else
@@ -512,16 +536,18 @@ DAEMON_CHECK=1
 FATAL_ERROR=0
 INSTALL_SDP_CONFIRMED=0
 FTP_INSTALL=0
+ACTIVATE_SERVICES=1
 
 ############################################################################
 # main
 ############################################################################
-while getopts ':bc:d:hp:w:e:fys:' TMPOPT
+while getopts ':abc:d:hp:w:e:fys:' TMPOPT
 do
 	case $TMPOPT in
 		\:) title; showHelp "ERROR: Missing Argument -$OPTARG"; exit 1 ;;
 		\?) title; showHelp "ERROR: Invalid Option -$OPTARG"; exit 2 ;;
 		h) title; showHelp; exit 0 ;;
+		a) ACTIVATE_SERVICES=0 ;;
 		b) DAEMON_CHECK=0 ;;
 		c) COMPANY_NAME=$OPTARG ;;
 		d) EMAIL_DOMAIN=$OPTARG ;;

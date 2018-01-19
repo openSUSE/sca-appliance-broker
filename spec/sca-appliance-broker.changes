@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jan 19 19:06:55 UTC 2018 - jason.record@suse.com
+
+- Active services as needed or exclude activation with -a
+
+-------------------------------------------------------------------
 Tue Jan  9 18:31:50 UTC 2018 - jason.record@suse.com
 
 - Correct ownership of /var/lib/php? (bsc#1075216)
