@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.36'
+SVER='1.0.37'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER='1.0.36'
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2018 Jan 09
+# Modified:     2018 Jan 22
 #
 ##############################################################################
 #
@@ -185,7 +185,7 @@ packageCheck()
 		FATAL_ERROR=1
 
 		printf "$FMT2" "Web Module"
-		if zypper lr 2>/dev/null | grep -i module-web-scripting &>/dev/null
+		if zypper lr 2>/dev/null | egrep -i "web-scripting-module|module-web-scripting" &>/dev/null
 		then
 			echo 'Installed'
 			WEB_MODULE=1
