@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.37'
+SVER='1.0.38'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER='1.0.37'
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2018 Jan 22
+# Modified:     2018 Jan 25
 #
 ##############################################################################
 #
@@ -444,7 +444,7 @@ setupBroker()
 {
 	if [[ -z "$PASS_WEB_USER" ]]; then
 		printf "$FMT1" "Web User Password" "Not Set"
-		printf "%s" " Enter Web User password: "
+		printf "%s" " Set Web User password: "
 		read -s PASS_WEB_USER
 		echo
 	else
