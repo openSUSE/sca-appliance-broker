@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER='1.0.6'
+SVER='1.0.7'
 
 ##############################################################################
 #  sdbroker - Supportconfig Analysis Broker
-#  Copyright (c) 2018 SUSE LLC
+#  Copyright (c) 2018-2021 SUSE LLC
 #
 # Description:  Maintains the list of new archives.
 # Runs on:      Broker Server
-# Modified:     2018 Jan 02
+# Modified:     2021 Mar 12
 
 ##############################################################################
 #
@@ -159,7 +159,7 @@ getArchives() {
 	msg debug CMD "Converting dos2unix"
 	dos2unix ${ARCHIVE_INBOUND}.raw &>/dev/null
 	msg debug CMD "Filtering supportconfig archives from FTP file list"
-	egrep '.*t[g,b]z$|.*tar.gz$|.*tar.bz2$' ${ARCHIVE_INBOUND}.raw | sort | uniq | grep -v '[[:space:]]' > ${ARCHIVE_INBOUND}.filtered
+	egrep '.*t[x,g,b]z$|.*tar.xz$|.*tar.gz$|.*tar.bz2$' ${ARCHIVE_INBOUND}.raw | sort | uniq | grep -v '[[:space:]]' > ${ARCHIVE_INBOUND}.filtered
 	ALL_ARCHIVES=$(cat ${ARCHIVE_INBOUND}.filtered | wc -l)
 	msg debug CMD "Converting archive list to SQL import file"
 	sed -e "s/\(.*\)/('\1'),/g;\$,\$s/),/);/;1iINSERT IGNORE INTO \`Archives\` (\`Filename\`) VALUES" ${ARCHIVE_INBOUND}.filtered > ${ARCHIVE_INBOUND}

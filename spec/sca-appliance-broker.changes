@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Fri Mar 12 19:42:22 UTC 2021 - jason.record@gmail.com
+Fri Mar 12 21:18:25 UTC 2021 - jason.record@gmail.com
 
+- New supportconfigs with xz compression are processed (bsc#1183343)
 - sdbroker-monitor runs without error (bsc#1183466)
 
 -------------------------------------------------------------------
