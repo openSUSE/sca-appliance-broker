@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Mar 12 19:42:22 UTC 2021 - jason.record@gmail.com
+
+- sdbroker-monitor runs without error (bsc#1183466)
+
+-------------------------------------------------------------------
 Thu Jan 25 18:57:34 UTC 2018 - jason.record@suse.com
 
 - Clarified web user set string (bsc#1077666)
