@@ -1,5 +1,5 @@
 <?PHP
-	//echo "<!-- Modified: Date       = 2014 May 07 -->\n";
+	//echo "<!-- Modified: Date       = 2021 Mar 12 -->\n";
 	$DB_USER = 'sdbroker';
 	$DB_PASS = "${DB_USER}_password";
 	$DB_NAME = 'ServerDiagnostics';
@@ -7,7 +7,7 @@
 	$ResourceRefresh = 300;
 	$StatsRefresh = 15;
 	$StatusRefresh = 2;
-	$SRView = 0; // 0=NCC, 1=Novell
+	$SRView = 0; // 0=SCC, 1=None
 
 	//echo "<!-- Config: User              = $DB_USER -->\n";
 	//echo "<!-- Config: Database          = $DB_NAME -->\n";

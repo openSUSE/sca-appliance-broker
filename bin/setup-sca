@@ -1,14 +1,14 @@
 #!/bin/bash
 
-SVER='1.0.38'
+SVER='1.0.40'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
-#  Copyright (C) 2014-2018 SUSE LLC
+#  Copyright (C) 2014-2021 SUSE LLC
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2018 Jan 25
+# Modified:     2018 Mar 12
 #
 ##############################################################################
 #
@@ -34,6 +34,7 @@ CRON_COMBINED="/usr/share/doc/packages/sca-appliance-broker/combined.cron"
 PHP_VERSION=''
 SERVER=$(hostname -f &>/dev/null)
 [[ -z "$SERVER" ]] && SERVER=$HOSTNAME
+ARCH_PREFIX='scc_'
 
 title() {
 	echo "####################################################################"
@@ -80,20 +81,20 @@ showUsage() {
 	echo " 1. Login as root on the SUSE server to be analyzed"
 	if (( FTP_INSTALL ))
 	then
-		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
+		echo " 2. Run a supportconfig and upload the ${ARCH_PREFIX}<supportconfig_file>.tbz"
 		echo "    to the appliance."
 		echo " 3. Examples include:"
 		echo
 		echo "    supportconfig -U \"ftp://${SERVER}/upload/\""
 		echo "    supportconfig -U \"scp://${SERVER}/srv/ftp/upload/\""
-		echo "    ftp -u \"${SERVER}:/upload/nts_<supportconig_file>.tbz\" /path/to/local/nts_<supportconfig_file>.tbz"
+		echo "    ftp -u \"${SERVER}:/upload/${ARCH_PREFIX}<supportconfig_file>.tbz\" /path/to/local/${ARCH_PREFIX}<supportconfig_file>.tbz"
 	else
-		echo " 2. Run a supportconfig and upload the nts_<supportconfig_file>.tbz"
+		echo " 2. Run a supportconfig and upload the ${ARCH_PREFIX}<supportconfig_file>.tbz"
 		echo "    to the appliance."
 		echo " 3. Examples include:"
 		echo
 		echo "    supportconfig -U \"scp://${SERVER}/tmp\""
-		echo "    scp /path/to/local/nts_<supportconifg_file>.tbz ${SERVER}:/tmp"
+		echo "    scp /path/to/local/${ARCH_PREFIX}<supportconfig_file>.tbz ${SERVER}:/tmp"
 	fi
 	echo
 	echo "To view the analysis reports, goto the URL:"

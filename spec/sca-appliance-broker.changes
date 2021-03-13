@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
-Fri Mar 12 21:18:25 UTC 2021 - jason.record@gmail.com
+Fri Mar 12 23:24:34 UTC 2021 - jason.record@suse.com
 
+- Removed Novell references (bsc#1183471)
 - New supportconfigs with xz compression are processed (bsc#1183343)
 - sdbroker-monitor runs without error (bsc#1183466)
 

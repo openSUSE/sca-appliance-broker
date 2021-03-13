@@ -13,7 +13,7 @@ Broker Server
 		yast add-on
 		Click Add, http, Next
 			Repository Name: SCA Appliance
-			URL of the Repository: http://download.opensuse.org/repositories/Novell:/NTS:/SCA/openSUSE_12.3/
+			URL of the Repository: https://download.opensuse.org/repositories/isv:/SUSE:/SupportTools:/Factory/SLE_15_SP2/
 		Click Next
 		Search phrase: sca-
 		Packages to Install: sca-broker, sca-pattern-devel (findutils-locate is optional)

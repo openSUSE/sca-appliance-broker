@@ -1,5 +1,5 @@
 <?PHP include 'checklogin.php';?>
-<?PHP //echo "<!-- Modified: Date       = 2014 Jun 09 -->\n"; ?>
+<?PHP //echo "<!-- Modified: Date       = 2021 Mar 12 -->\n"; ?>
 <HTML>
 <HEAD>
 <TITLE>SCA Reports</TITLE>
@@ -27,7 +27,6 @@
 	switch ($viewType) {
 	case 'n':
 	case 's':
-	case 'o':
 		break;
 	default:
 		$viewType = $DefaultViewType;
@@ -43,7 +42,6 @@
 	case 'w':
 	case 'm':
 	case 'n':
-	case 'o':
 	case 'g':
 		break;
 	default:
@@ -98,11 +96,6 @@
 	} else {
 		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=r&vt=n\">Normal</A>, ";
 	}
-	if ( $viewType == 'o' ) {
-		echo "<B>OES</B>, ";
-	} else {
-		echo "<A HREF=\"index.php?top=$Top&row=$rowStart&st=o&vt=o\">OES</A>, ";
-	}
 	if ( $viewType == 's' ) {
 		echo "<B>SR</B> ";
 	} else {
@@ -135,10 +128,6 @@
 	case 'd':
 		//echo "<!-- Sorting by:          = Distribution -->\n";
 		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY Distro ASC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
-		break;
-	case 'o':
-		//echo "<!-- Sorting by:          = OES -->\n";
-		$query="SELECT $DB_FIELDS FROM Archives WHERE ArchiveState='Done' ORDER BY OESDistro DESC, OESDistroSP DESC, ServerName ASC, PatternsCritical DESC LIMIT " . $rowStart . "," . $Top;
 		break;
 	case 'a':
 		//echo "<!-- Sorting by:          = Architecture -->\n";
@@ -231,13 +220,6 @@
 	} else {
 		echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=d\">Distribution</A></TH>";
 	}
-	if ( $viewType == 'o' ) {
-		if ( $sortType == 'o' ) {	
-			echo "<TH ALIGN=\"left\">OES Distribution</TH>";
-		} else {
-			echo "<TH ALIGN=\"left\"><A HREF=\"index.php?top=$Top&row=$rowStart&vt=$viewType&st=o\">OES Distribution</A></TH>";
-		}
-	}
 	if ( $sortType == 'a' ) {
 		echo "<TH ALIGN=\"left\">Arch</TH>";
 	} else {
@@ -304,13 +286,6 @@
 		echo "<TD><A HREF=\"reportfull.php?aid=$ArchiveID\" TARGET=\"$ServerName\" TITLE=\"SCA Report for $ServerName\">$ReportDate $ReportTime</A></TD>";
 		echo "<TD>$ArchiveDate $ArchiveTime</TD>";
 		echo "<TD>$Distro SP$DistroSP</TD>";
-		if ( $viewType == 'o' ) {
-			if ( strlen($OESDistro) > 0 ) {
-				echo "<TD>$OESDistro SP$OESDistroSP</TD>";
-			} else {
-				echo "<TD></TD>";
-			}
-		}
 		echo "<TD>$Architecture</TD>";
 		echo "<TD>$PatternsCritical</TD>";
 		echo "<TD>$PatternsWarning</TD>";
