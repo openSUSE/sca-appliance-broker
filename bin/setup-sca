@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SVER='1.0.40'
+SVER='1.0.43'
 
 ##############################################################################
 #  setup-sca - SCA Appliance Setup Tool
@@ -8,7 +8,7 @@ SVER='1.0.40'
 #
 # Description:  Sets up a standard local host configuration of the SCA 
 #               appliance
-# Modified:     2018 Mar 12
+# Modified:     2021 Mar 15
 #
 ##############################################################################
 #
@@ -32,6 +32,7 @@ CURRENT_SCRIPT=$(basename $0)
 CURRENT_ARGS="$*"
 CRON_COMBINED="/usr/share/doc/packages/sca-appliance-broker/combined.cron"
 PHP_VERSION=''
+WEB_MODULE=0
 SERVER=$(hostname -f &>/dev/null)
 [[ -z "$SERVER" ]] && SERVER=$HOSTNAME
 ARCH_PREFIX='scc_'
@@ -108,6 +109,20 @@ showUsage() {
 	echo
 }
 
+checkWebModule() {
+	printf "$FMT2" "Web Module"
+	if zypper lr 2>/dev/null | egrep -i "web-scripting-module|module-web-scripting" &>/dev/null
+	then
+		echo 'Installed'
+		WEB_MODULE=1
+	else
+		echo 'Not Installed'
+		echo; echo "  Install the Web and Scripting Module repository"; echo
+		echo "  Run: SUSEConnect --list-extensions"; echo
+		FATAL_ERROR=1
+	fi
+}
+
 getPHPVersion() {
 	printf "$FMT2" "PHP Version"
 	FOUND_VERSION=0
@@ -123,7 +138,7 @@ getPHPVersion() {
 			echo $PHP_VERSION
 	else
 			echo "ERROR"
-			PHP_VERSION='_unknown_'
+			PHP_VERSION='_php_'
 			FATAL_ERROR=1
 	fi
 }
@@ -181,19 +196,11 @@ packageCheck()
 	fi
 	if [[ -n "$MISSING_PACKAGES" ]]; then
 		echo 'ERROR'
-		printf "$FMT1" "  Missing required packages:" "$MISSING_PACKAGES"
-		echo
-		FATAL_ERROR=1
-
-		printf "$FMT2" "Web Module"
-		if zypper lr 2>/dev/null | egrep -i "web-scripting-module|module-web-scripting" &>/dev/null
-		then
-			echo 'Installed'
-			WEB_MODULE=1
-		else
-			echo 'Not Installed'
-			echo; echo "  Install the Web and Scripting Module repository"; echo
+		if (( $WEB_MODULE )); then
+			printf "$FMT1" "  Missing required packages:" "$MISSING_PACKAGES"
+			echo; echo "  Run: zypper install $MISSING_PACKAGES"; echo
 		fi
+		FATAL_ERROR=1
 	else
 		echo Installed
 	fi
@@ -566,6 +573,7 @@ done
 ############################################################################
 title
 serverAccess
+checkWebModule
 getPHPVersion
 phpCheck
 packageCheck
